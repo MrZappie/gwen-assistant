@@ -1,31 +1,59 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <link rel="stylesheet" href="home.css">
-    <title>Project View</title>
+    <link rel="stylesheet" href="stylesheet/home.css">
+    <title>G.W.E.N - Project Explorer</title>
 </head>
+
 <body>
-    <div class="container">
-        <h1 id="project-title">Loading Project...</h1>
-        <div class="file-card">
-            <ul id="file-list"></ul>
-        </div>
-    </div>
+    <div class="cursor"></div>
+
+    <nav class="top-nav">
+        <button class="nav-btn active">Project</button>
+        <button class="nav-btn">Settings</button>
+    </nav>
+
+    <main class="dashboard">
+        <aside class="sidebar">
+            <h3>Project Folders</h3>
+            <div id="folder-tree">
+            </div>
+        </aside>
+
+        <section class="editor-area"></section>
+
+        <aside class="right-panel"></aside>
+    </main>
 
     <script>
+        // 1. Display Logic
         const projectData = JSON.parse(localStorage.getItem('selectedProject'));
         if (projectData) {
-            document.getElementById('project-title').innerText = `Project: ${projectData.folder_name}`;
-            const list = document.getElementById('file-list');
-            
+            const tree = document.getElementById('folder-tree');
+            const folderHeader = document.createElement('div');
+            folderHeader.innerHTML = `v 📁 ${projectData.folder_name}`;
+            folderHeader.className = "folder-root";
+            tree.appendChild(folderHeader);
+
+            const fileList = document.createElement('ul');
+            fileList.className = "nested-files";
             projectData.files.forEach(file => {
                 const li = document.createElement('li');
-                li.className = "file-item";
-                // Adding a simple icon representation
-                li.innerHTML = `<span>📁</span> ${file}`;
-                list.appendChild(li);
+                li.innerHTML = `- 📄 ${file}`;
+                fileList.appendChild(li);
             });
+            tree.appendChild(fileList);
         }
+
+    
+        const cursor = document.querySelector('.cursor');
+
+        document.addEventListener('mousemove', (e) => {
+            // Smoothly follows the mouse
+            cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+        });
     </script>
 </body>
+
 </html>

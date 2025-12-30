@@ -1,50 +1,71 @@
 :root {
-    --background-color: #010104;
-    --text-color: #EBE9FC;
+    --bg-dark: #010104;
+    --panel-bg: #050510;
     --accent-blue: #3A31D8;
-    --card-bg: #0a0a0f;
+    --text-color: #EBE9FC;
 }
 
 body {
-    background-color: var(--background-color);
+    background-color: var(--bg-dark);
     color: var(--text-color);
+    margin: 0;
     font-family: 'Inter', sans-serif;
-    padding: 40px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
-.container {
-    max-width: 800px;
-    margin: 0 auto;
+
+/* Top Navigation */
+.top-nav {
+    background: #000022;
+    padding: 10px 20px;
+    display: flex;
+    gap: 10px;
+    border-bottom: 1px solid #11112b;
 }
 
-h1 {
-    border-bottom: 2px solid var(--accent-blue);
-    padding-bottom: 10px;
-    margin-bottom: 30px;
+.nav-btn {
+    background: none;
+    border: none;
+    color: #666;
+    padding: 5px 15px;
+    cursor: pointer;
 }
 
-.file-card {
-    background: var(--card-bg);
-    border-radius: 12px;
+.nav-btn.active {
+    background: var(--accent-blue);
+    color: white;
+    border-radius: 4px;
+}
+
+/* Main Layout */
+.dashboard {
+    display: flex;
+    flex: 1;
+}
+
+.sidebar {
+    width: 250px;
+    background: var(--panel-bg);
+    border-right: 1px solid #11112b;
     padding: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
-ul {
-    list-style: none;
-    padding: 0;
+.editor-area {
+    flex: 1;
+    background: #000; /* Black center area from your image */
 }
 
-.file-item {
-    padding: 12px;
-    border-bottom: 1px solid #1a1a24;
-    transition: background 0.2s;
+.right-panel {
+    width: 200px;
+    background: var(--panel-bg);
+    border-left: 1px solid #11112b;
 }
 
-.file-item:hover {
-    background: #161625;
-}
-
-.file-item span {
-    margin-right: 10px;
-}
+/* Folder Tree Styling */
+h3 { font-size: 1.1rem; margin-bottom: 20px; }
+.folder-root { color: #aaa; margin-bottom: 5px; cursor: pointer; }
+.nested-files { list-style: none; padding-left: 20px; color: #888; }
+.nested-files li { margin: 5px 0; font-size: 0.9rem; }

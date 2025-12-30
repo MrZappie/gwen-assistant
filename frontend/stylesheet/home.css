@@ -1,8 +1,50 @@
 :root {
     --background-color: #010104;
-    --text-color:#EBE9FC;
+    --text-color: #EBE9FC;
+    --accent-blue: #3A31D8;
+    --card-bg: #0a0a0f;
 }
 
-body{
+body {
     background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: 'Inter', sans-serif;
+    padding: 40px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+h1 {
+    border-bottom: 2px solid var(--accent-blue);
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+}
+
+.file-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+.file-item {
+    padding: 12px;
+    border-bottom: 1px solid #1a1a24;
+    transition: background 0.2s;
+}
+
+.file-item:hover {
+    background: #161625;
+}
+
+.file-item span {
+    margin-right: 10px;
 }

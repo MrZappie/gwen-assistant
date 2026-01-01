@@ -1,6 +1,7 @@
-from typing import TypedDict
+from typing import TypedDict,Sequence,Annotated
+from langgraph.graph.message import add_messages
+from langchain_core.messages import BaseMessage
 
 
 class AgentState(TypedDict):
-    user_input: str
-    mode: str
+    messages: Annotated[Sequence[BaseMessage],add_messages]

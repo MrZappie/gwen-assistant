@@ -8,4 +8,4 @@ API_KEY = os.getenv("GROQ_API_KEY")
 
 PROJECT_DIR =  os.path.realpath(os.getenv("PROJECT_DIR"))
 
-MODE = "LOCAL"
+MODE = os.getenv("MODE")

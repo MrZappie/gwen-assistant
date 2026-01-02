@@ -9,9 +9,25 @@
 <body>
     <div class="cursor"></div>
 
+
     <nav class="top-nav">
-        <button class="nav-btn active">Project</button>
-        <button class="nav-btn">Settings</button>
+        <div class="dropdown">
+            <button class="nav-btn active" onclick="toggleDropdown('project-menu')">Project</button>
+            <ul id="project-menu" class="dropdown-content">
+                <li>New File</li>
+                <li>Open Folder</li>
+                <li>Save All</li>
+            </ul>
+        </div>
+
+        <div class="dropdown">
+            <button class="nav-btn" onclick="toggleDropdown('settings-menu')">Settings</button>
+            <ul id="settings-menu" class="dropdown-content">
+                <li>User Preferences</li>
+                <li>Color Theme</li>
+                <li>Keyboard Shortcuts</li>
+            </ul>
+        </div>
     </nav>
 
     <main class="dashboard">
@@ -26,33 +42,8 @@
         <aside class="right-panel"></aside>
     </main>
 
-    <script>
-        // 1. Display Logic
-        const projectData = JSON.parse(localStorage.getItem('selectedProject'));
-        if (projectData) {
-            const tree = document.getElementById('folder-tree');
-            const folderHeader = document.createElement('div');
-            folderHeader.innerHTML = `v 📁 ${projectData.folder_name}`;
-            folderHeader.className = "folder-root";
-            tree.appendChild(folderHeader);
+    <script src="javascript/home-ui.js">
 
-            const fileList = document.createElement('ul');
-            fileList.className = "nested-files";
-            projectData.files.forEach(file => {
-                const li = document.createElement('li');
-                li.innerHTML = `- 📄 ${file}`;
-                fileList.appendChild(li);
-            });
-            tree.appendChild(fileList);
-        }
-
-    
-        const cursor = document.querySelector('.cursor');
-
-        document.addEventListener('mousemove', (e) => {
-            // Smoothly follows the mouse
-            cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
-        });
     </script>
 </body>
 

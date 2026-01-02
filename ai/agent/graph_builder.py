@@ -4,7 +4,8 @@ from tools.file_tools import TOOLS
 from models.state import AgentState
 from langgraph.graph import StateGraph, END
 from langchain_core.messages import SystemMessage, AIMessage, ToolCall
-from langgraph.prebuilt import ToolNode
+from langgraph.prebuilt.tool_node import ToolNode
+
 from agent.model import get_model
 
 def plan_mode_ai(state: AgentState) -> AgentState:

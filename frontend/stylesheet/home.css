@@ -1,71 +1,164 @@
-:root {
-    --bg-dark: #010104;
-    --panel-bg: #050510;
-    --accent-blue: #3A31D8;
-    --text-color: #EBE9FC;
-}
-
-body {
-    background-color: var(--bg-dark);
-    color: var(--text-color);
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-
-/* Top Navigation */
-.top-nav {
-    background: #000022;
-    padding: 10px 20px;
-    display: flex;
-    gap: 10px;
-    border-bottom: 1px solid #11112b;
-}
-
-.nav-btn {
-    background: none;
-    border: none;
-    color: #666;
-    padding: 5px 15px;
-    cursor: pointer;
-}
-
-.nav-btn.active {
-    background: var(--accent-blue);
-    color: white;
-    border-radius: 4px;
-}
-
-/* Main Layout */
+/* The main container background */
 .dashboard {
+    background-color: #0d1117;
+    /* Very dark blue-black */
     display: flex;
-    flex: 1;
+    height: 100vh;
 }
 
+/* The Sidebar background */
 .sidebar {
+    background-color: #010409;
+    /* Slightly darker than dashboard for contrast */
     width: 250px;
-    background: var(--panel-bg);
-    border-right: 1px solid #11112b;
-    padding: 20px;
+    border-right: 1px solid #30363d;
+    padding: 10px;
 }
 
-.editor-area {
-    flex: 1;
-    background: #000; /* Black center area from your image */
+/* Header text for "Project Folders" */
+.sidebar h3 {
+    color: #f0f6fc;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+    padding-left: 10px;
+}
+/* Navigation Container */
+.top-nav {
+    display: flex;
+    background-color: #181818;
+    padding: 5px 10px;
+    gap: 10px;
 }
 
-.right-panel {
-    width: 200px;
-    background: var(--panel-bg);
-    border-left: 1px solid #11112b;
+/* Dropdown Wrapper */
+.dropdown {
+    position: relative;
+    display: inline-block;
 }
 
-/* Folder Tree Styling */
-h3 { font-size: 1.1rem; margin-bottom: 20px; }
-.folder-root { color: #aaa; margin-bottom: 5px; cursor: pointer; }
-.nested-files { list-style: none; padding-left: 20px; color: #888; }
-.nested-files li { margin: 5px 0; font-size: 0.9rem; }
+/* Dropdown Menu (Hidden by default) */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #252526; /* VS Code menu color */
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
+    z-index: 1000;
+    list-style: none;
+    padding: 5px 0;
+    margin-top: 5px;
+    border: 1px solid #454545;
+}
+
+/* Menu Items */
+.dropdown-content li {
+    color: #cccccc;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.dropdown-content li:hover {
+    background-color: #094771; /* Blue highlight */
+    color: white;
+}
+
+/* Show class toggled by JS */
+.show {
+    display: block;
+}
+
+
+/* Container for the tree */
+#folder-tree {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: #cccccc;
+    /* Light gray text */
+    font-size: 14px;
+    padding: 10px 0;
+    user-select: none;
+}
+
+/* Remove default bullets and margins from UL */
+.tree-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Individual list items */
+.tree-list li {
+    position: relative;
+}
+
+/* The clickable row */
+.tree-item {
+    display: flex;
+    align-items: center;
+    padding: 4px 10px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.1s;
+}
+
+/* Hover effect for rows */
+.tree-item:hover {
+    background-color: #2a2d2e;
+}
+
+/* The arrow/chevron icon */
+.chevron {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+    text-align: center;
+    line-height: 16px;
+    font-size: 12px;
+    color: #858585;
+    /* Dimmer color for icons */
+    transition: transform 0.1s;
+}
+
+/* Rotate chevron when open */
+.tree-item.open .chevron {
+    transform: rotate(90deg);
+}
+
+/* Indentation for nested items */
+.nested {
+    display: none;
+    /* Hidden by default */
+    padding-left: 12px;
+}
+
+.nested.active {
+    display: block;
+    /* Shown when parent is clicked */
+}
+
+/* File specific colors (Optional, matching your reference) */
+.tree-item span {
+    color: #cccccc;
+}
+
+/* Optional: add vertical lines for better nesting visibility */
+.nested .tree-list {
+    border-left: 1px solid #333333;
+    margin-left: 7px;
+}
+
+/* Removes the white gap around the edges of the screen */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Ensures padding doesn't push width/height out */
+}
+
+html, body {
+    height: 100%;
+    background-color: #010409; /* Matches your dashboard color */
+    overflow: hidden; /* Prevents unwanted scrollbars */
+}

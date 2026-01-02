@@ -1,7 +1,9 @@
-langgraph==0.0.52
-langchain==0.0.10
-langchain-community==0.0.10
-fastapi==0.104.1
-uvicorn==0.25.0
-python-dotenv==1.0.0
-websockets==12.0
+langgraph
+langchain
+langchain-community
+fastapi
+uvicorn
+python-dotenv
+websockets
+langchain_ollama
+langchain_groq

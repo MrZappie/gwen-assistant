@@ -1,164 +1,131 @@
-/* The main container background */
-.dashboard {
-    background-color: #0d1117;
-    /* Very dark blue-black */
-    display: flex;
-    height: 100vh;
-}
-
-/* The Sidebar background */
-.sidebar {
-    background-color: #010409;
-    /* Slightly darker than dashboard for contrast */
-    width: 250px;
-    border-right: 1px solid #30363d;
-    padding: 10px;
-}
-
-/* Header text for "Project Folders" */
-.sidebar h3 {
-    color: #f0f6fc;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 15px;
-    padding-left: 10px;
-}
-/* Navigation Container */
-.top-nav {
-    display: flex;
-    background-color: #181818;
-    padding: 5px 10px;
-    gap: 10px;
-}
-
-/* Dropdown Wrapper */
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-/* Dropdown Menu (Hidden by default) */
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #252526; /* VS Code menu color */
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
-    z-index: 1000;
-    list-style: none;
-    padding: 5px 0;
-    margin-top: 5px;
-    border: 1px solid #454545;
-}
-
-/* Menu Items */
-.dropdown-content li {
-    color: #cccccc;
-    padding: 8px 12px;
-    cursor: pointer;
-    font-size: 13px;
-}
-
-.dropdown-content li:hover {
-    background-color: #094771; /* Blue highlight */
-    color: white;
-}
-
-/* Show class toggled by JS */
-.show {
-    display: block;
-}
-
-
-/* Container for the tree */
-#folder-tree {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    color: #cccccc;
-    /* Light gray text */
-    font-size: 14px;
-    padding: 10px 0;
-    user-select: none;
-}
-
-/* Remove default bullets and margins from UL */
-.tree-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-/* Individual list items */
-.tree-list li {
-    position: relative;
-}
-
-/* The clickable row */
-.tree-item {
-    display: flex;
-    align-items: center;
-    padding: 4px 10px;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background-color 0.1s;
-}
-
-/* Hover effect for rows */
-.tree-item:hover {
-    background-color: #2a2d2e;
-}
-
-/* The arrow/chevron icon */
-.chevron {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    margin-right: 6px;
-    text-align: center;
-    line-height: 16px;
-    font-size: 12px;
-    color: #858585;
-    /* Dimmer color for icons */
-    transition: transform 0.1s;
-}
-
-/* Rotate chevron when open */
-.tree-item.open .chevron {
-    transform: rotate(90deg);
-}
-
-/* Indentation for nested items */
-.nested {
-    display: none;
-    /* Hidden by default */
-    padding-left: 12px;
-}
-
-.nested.active {
-    display: block;
-    /* Shown when parent is clicked */
-}
-
-/* File specific colors (Optional, matching your reference) */
-.tree-item span {
-    color: #cccccc;
-}
-
-/* Optional: add vertical lines for better nesting visibility */
-.nested .tree-list {
-    border-left: 1px solid #333333;
-    margin-left: 7px;
-}
-
-/* Removes the white gap around the edges of the screen */
+/* Universal Reset */
 * {
     margin: 0;
     padding: 0;
-    box-sizing: border-box; /* Ensures padding doesn't push width/height out */
+    box-sizing: border-box;
 }
 
 html, body {
     height: 100%;
-    background-color: #010409; /* Matches your dashboard color */
-    overflow: hidden; /* Prevents unwanted scrollbars */
+    background-color: #010409;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    overflow: hidden;
+    color: #f0f6fc;
 }
+
+/* Navigation Bar */
+.top-nav {
+    display: flex;
+    background-color: #020024; /* Matches the top dark bar in pic */
+    padding: 8px 15px;
+    gap: 12px;
+    border-bottom: 1px solid #161b22;
+}
+
+.nav-btn {
+    background: #3A31D8;
+    color: #8b949e;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.nav-btn.active, .nav-btn:hover {
+    background: #1f6feb; /* Blue accent for active tab */
+    color: white;
+}
+
+/* Dashboard Layout */
+.dashboard {
+    display: flex;
+    height: calc(100vh - 45px); /* Full height minus nav bar */
+    background-color: #0d1117;
+}
+
+/* Sidebar Styling - Matching the Picture */
+.sidebar {
+    background-color: #0B0B1D; 
+    width: 280px; /* Slightly wider to match proportions */
+    border-right: 1px solid #30363d;
+    padding: 25px 20px; 
+}
+
+.sidebar h3 {
+    color: #ffffff;
+    font-size: 24px; /* Large, bold heading from image */
+    font-weight: 500;
+    margin-bottom: 30px;
+    letter-spacing: -0.5px;
+}
+
+/* Folder Tree Styling */
+#folder-tree {
+    color: #c9d1d9;
+    font-size: 14px;
+}
+
+.tree-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 0;
+    cursor: pointer;
+    gap: 8px;
+}
+
+.tree-item:hover {
+    color: #58a6ff;
+}
+
+/* File/Folder Icons color */
+.tree-item .chevron {
+    color: #8b949e;
+    font-style: normal;
+    font-size: 12px;
+}
+
+.nested {
+    padding-left: 15px;
+    margin-top: 4px;
+    border-left: 1px solid #21262d; /* Subtle guide line */
+}
+
+/* Right Panel Areas */
+.editor-area {
+    flex-grow: 1;
+    background-color: #000000; /* Dark center as seen in pic */
+}
+
+.right-panel {
+    width: 250px;
+    background-color: #040914;
+    border-left: 1px solid #30363d;
+}
+
+/* Dropdown Menu Styles */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #161b22;
+    min-width: 180px;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    margin-top: 8px;
+    z-index: 1000;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+.dropdown-content li {
+    padding: 10px 15px;
+    font-size: 13px;
+    color: #c9d1d9;
+}
+
+.dropdown-content li:hover {
+    background-color: #1f6feb;
+    color: white;
+}
+
+.show { display: block; }

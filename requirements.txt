@@ -1,0 +1,9 @@
+langgraph
+langchain
+langchain-community
+fastapi
+uvicorn
+python-dotenv
+websockets
+langchain_ollama
+langchain_groq

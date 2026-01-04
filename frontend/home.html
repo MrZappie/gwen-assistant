@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="stylesheet/home.css">
+    <title>G.W.E.N - Project Explorer</title>
+</head>
+
+<body>
+    <div class="cursor"></div>
+
+
+    <nav class="top-nav">
+        <div class="dropdown">
+            <button class="nav-btn active" onclick="toggleDropdown('project-menu')">Project</button>
+            <ul id="project-menu" class="dropdown-content">
+                <li>New File</li>
+                <li>Open Folder</li>
+                <li>Save All</li>
+            </ul>
+        </div>
+
+        <div class="dropdown">
+            <button class="nav-btn" onclick="toggleDropdown('settings-menu')">Settings</button>
+            <ul id="settings-menu" class="dropdown-content">
+                <li>User Preferences</li>
+                <li>Color Theme</li>
+                <li>Keyboard Shortcuts</li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="dashboard">
+        <aside class="sidebar">
+            <h3>Project Folders</h3>
+            <div id="folder-tree">
+            </div>
+        </aside>
+
+        <section class="editor-area"></section>
+
+        <aside class="right-panel"></aside>
+    </main>
+
+    <script src="javascript/home-ui.js">
+
+    </script>
+</body>
+
+</html>

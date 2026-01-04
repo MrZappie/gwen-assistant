@@ -1,0 +1,131 @@
+/* Universal Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    background-color: #010409;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    overflow: hidden;
+    color: #f0f6fc;
+}
+
+/* Navigation Bar */
+.top-nav {
+    display: flex;
+    background-color: #020024; /* Matches the top dark bar in pic */
+    padding: 8px 15px;
+    gap: 12px;
+    border-bottom: 1px solid #161b22;
+}
+
+.nav-btn {
+    background: #3A31D8;
+    color: #8b949e;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.nav-btn.active, .nav-btn:hover {
+    background: #1f6feb; /* Blue accent for active tab */
+    color: white;
+}
+
+/* Dashboard Layout */
+.dashboard {
+    display: flex;
+    height: calc(100vh - 45px); /* Full height minus nav bar */
+    background-color: #0d1117;
+}
+
+/* Sidebar Styling - Matching the Picture */
+.sidebar {
+    background-color: #0B0B1D; 
+    width: 280px; /* Slightly wider to match proportions */
+    border-right: 1px solid #30363d;
+    padding: 25px 20px; 
+}
+
+.sidebar h3 {
+    color: #ffffff;
+    font-size: 24px; /* Large, bold heading from image */
+    font-weight: 500;
+    margin-bottom: 30px;
+    letter-spacing: -0.5px;
+}
+
+/* Folder Tree Styling */
+#folder-tree {
+    color: #c9d1d9;
+    font-size: 14px;
+}
+
+.tree-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 0;
+    cursor: pointer;
+    gap: 8px;
+}
+
+.tree-item:hover {
+    color: #58a6ff;
+}
+
+/* File/Folder Icons color */
+.tree-item .chevron {
+    color: #8b949e;
+    font-style: normal;
+    font-size: 12px;
+}
+
+.nested {
+    padding-left: 15px;
+    margin-top: 4px;
+    border-left: 1px solid #21262d; /* Subtle guide line */
+}
+
+/* Right Panel Areas */
+.editor-area {
+    flex-grow: 1;
+    background-color: #000000; /* Dark center as seen in pic */
+}
+
+.right-panel {
+    width: 250px;
+    background-color: #040914;
+    border-left: 1px solid #30363d;
+}
+
+/* Dropdown Menu Styles */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #161b22;
+    min-width: 180px;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    margin-top: 8px;
+    z-index: 1000;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+.dropdown-content li {
+    padding: 10px 15px;
+    font-size: 13px;
+    color: #c9d1d9;
+}
+
+.dropdown-content li:hover {
+    background-color: #1f6feb;
+    color: white;
+}
+
+.show { display: block; }

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Page Title</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' href='stylesheet/index.css'>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Crimson+Pro">
+    <style>
+        body {
+            font-family: 'Crimson Pro', serif;
+            font-size: 48px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <h1>G.W.E.N</h1>
+    <p>You haven't selected a Project Yet </p>
+    <button id="select-project-btn" class="select-project-btn">
+        Select Project
+    </button>
+
+    <script src="javascript/index.js"></script>
+    <div class="wave-container">
+        <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none"
+            shape-rendering="auto">
+            <defs>
+                <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+            </defs>
+            <g class="parallax">
+                <use xlink:href="#gentle-wave" x="48" y="0" fill="rgba(0, 0, 128, 0.5)" />
+                <use xlink:href="#gentle-wave" x="48" y="7" fill="#0000CC" />
+            </g>
+        </svg>
+    </div>
+</body>
+
+</html>

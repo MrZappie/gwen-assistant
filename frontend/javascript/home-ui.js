@@ -23,7 +23,7 @@ function createTree(data, container) {
         itemDiv.className = 'tree-item';
         
         // Add icons based on type
-        const icon = item.type === 'folder' ? 'v 📁' : '- 📄';
+        const icon = item.type === 'folder' ? '📁' : '- 📄';
         itemDiv.innerHTML = `<span class="chevron">${icon}</span> <span>${item.name}</span>`;
 
         li.appendChild(itemDiv);

@@ -33,7 +33,7 @@ html, body {
     transition: 0.2s;
 }
 
-.nav-btn.active, .nav-btn:hover {
+.nav-btn:hover {
     background: #1f6feb; /* Blue accent for active tab */
     color: white;
 }

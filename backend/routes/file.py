@@ -13,8 +13,7 @@ router = APIRouter()
 async def select_directory():
     loop = asyncio.get_running_loop()
     path = await loop.run_in_executor(executor, pick_folder_thread)
-    print("SelectDir: ", path)
-
+    print("[LOG] SelectDir: ", path)
     if not path:
         return {"message": "No directory selected", "error": True}
     

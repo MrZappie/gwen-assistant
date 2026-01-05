@@ -12,13 +12,8 @@ def pick_folder_thread():
             return None
         folder_item = folder.Self
         try:
-            
-            path = folder_item.Path
-
-            
+            path = folder_item.Path            
             set_key(".env", "PROJECT_DIR", path)
-            print(f".env updated: PROJECT_DIR='{path}'")
-
             return path
         except AttributeError:
             return None

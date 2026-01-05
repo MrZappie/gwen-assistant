@@ -6,7 +6,7 @@ const projectData = [
         children: [
             { name: "ReadMe.md", type: "file" },
             { name: "main.py", type: "file" },
-            
+
         ]
     }
 ];
@@ -18,27 +18,41 @@ function createTree(data, container) {
 
     data.forEach(item => {
         const li = document.createElement('li');
-        
-        // Create the row item
         const itemDiv = document.createElement('div');
         itemDiv.className = 'tree-item';
-        
-        // Add icons based on type
-        const icon = item.type === 'folder' ? '📁' : '- 📄';
-        itemDiv.innerHTML = `<span class="chevron">${icon}</span> <span>${item.name}</span>`;
+
+        // --- MODIFIED SECTION ---
+        // Instead of plain emojis, use a span for the icon
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'tree-icon';
+
+        // If it's a file, you might want a different icon or none
+        if (item.type === 'file') {
+            iconSpan.style.visibility = 'hidden'; // Hide icon for files, or change code
+        }
+
+        const textSpan = document.createElement('span');
+        textSpan.textContent = item.name;
+
+        itemDiv.appendChild(iconSpan);
+        itemDiv.appendChild(textSpan);
+        // -------------------------
 
         li.appendChild(itemDiv);
 
-        // If it's a folder, handle children and click events
         if (item.type === 'folder' && item.children) {
             const nestedUl = document.createElement('div');
-            nestedUl.className = 'nested active'; // 'active' makes it open by default
+            nestedUl.className = 'nested active';
+
+            // Set initial state for the icon if it starts active
+            itemDiv.classList.add('open');
+
             createTree(item.children, nestedUl);
             li.appendChild(nestedUl);
 
-            // Toggle logic
             itemDiv.addEventListener('click', () => {
                 nestedUl.classList.toggle('active');
+                // This toggle triggers the CSS transform: rotate
                 itemDiv.classList.toggle('open');
             });
         }
@@ -48,7 +62,6 @@ function createTree(data, container) {
 
     container.appendChild(ul);
 }
-
 // 3. Initialize the tree on page load
 document.addEventListener('DOMContentLoaded', () => {
     const treeContainer = document.getElementById('folder-tree');
@@ -69,7 +82,7 @@ function toggleDropdown(id) {
 }
 
 // Close dropdowns if user clicks outside
-window.onclick = function(event) {
+window.onclick = function (event) {
     if (!event.target.matches('.nav-btn')) {
         const dropdowns = document.getElementsByClassName("dropdown-content");
         for (let i = 0; i < dropdowns.length; i++) {

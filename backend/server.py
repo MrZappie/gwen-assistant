@@ -5,10 +5,11 @@ load_dotenv()
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 import threading, time, os, signal
+
+from backend.routes import file
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -31,6 +32,9 @@ app.add_middleware(
 )
 
 
+
+app.include_router(file.router)
+#this must be after including routers
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 
 

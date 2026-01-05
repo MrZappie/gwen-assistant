@@ -79,6 +79,10 @@ html, body {
     color: #58a6ff;
 }
 
+.tree-list{
+    list-style-type: none;
+}
+
 /* File/Folder Icons color */
 .tree-item .chevron {
     color: #8b949e;

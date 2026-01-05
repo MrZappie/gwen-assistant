@@ -5,7 +5,8 @@
     box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
     height: 100%;
     background-color: #010409;
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -16,14 +17,16 @@ html, body {
 /* Navigation Bar */
 .top-nav {
     display: flex;
-    background-color: #020024; /* Matches the top dark bar in pic */
+    background-color: #020024;
+    /* Matches the top dark bar in pic */
     padding: 8px 15px;
     gap: 12px;
     border-bottom: 1px solid #161b22;
 }
 
 .nav-btn {
-    background: #1f6feb; /* Blue accent for active tab */
+    background: #1f6feb;
+    /* Blue accent for active tab */
     color: white;
     border: none;
     padding: 6px 16px;
@@ -33,29 +36,32 @@ html, body {
     transition: 0.2s;
 }
 
-.nav-btn:hover{
+.nav-btn:hover {
     background-color: #58a6ff;
-    color: rgba(255,255,255,0.8);
+    color: rgba(255, 255, 255, 0.8);
 }
 
 /* Dashboard Layout */
 .dashboard {
     display: flex;
-    height: calc(100vh - 45px); /* Full height minus nav bar */
+    height: calc(100vh - 45px);
+    /* Full height minus nav bar */
     background-color: #0d1117;
 }
 
 /* Sidebar Styling - Matching the Picture */
 .sidebar {
-    background-color: #0B0B1D; 
-    width: 280px; /* Slightly wider to match proportions */
+    background-color: #0B0B1D;
+    width: 280px;
+    /* Slightly wider to match proportions */
     border-right: 1px solid #30363d;
-    padding: 25px 20px; 
+    padding: 25px 20px;
 }
 
 .sidebar h3 {
     color: #ffffff;
-    font-size: 24px; /* Large, bold heading from image */
+    font-size: 24px;
+    /* Large, bold heading from image */
     font-weight: 500;
     margin-bottom: 30px;
     letter-spacing: -0.5px;
@@ -67,10 +73,47 @@ html, body {
     font-size: 14px;
 }
 
+/* Base style for the icon */
+.tree-icon::before {
+    font-family: "bootstrap-icons";
+    content: "\F285";
+    /* The Robot Icon */
+    display: inline-block;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-right: 4px;
+    font-size: 0.9rem;
+}
+
+/* The state when the folder is open */
+.tree-item.open .tree-icon::before {
+    transform: rotate(90deg);
+    /* Or 180deg depending on your preference */
+    color: #0d6efd;
+    /* Optional: change color when active */
+    
+}
+
+/* Ensure the list looks like a tree */
+.tree-list {
+    list-style: none;
+    padding-left: 12px;
+    margin: 0;
+}
+
+.nested {
+    display: none;
+    margin-left: 8px;
+    border-left: 1px solid #333;
+}
+
+.nested.active {
+    display: block;
+}
+
 .tree-item {
     display: flex;
     align-items: center;
-    padding: 6px 0;
+    padding: 2px 0;
     cursor: pointer;
     gap: 8px;
 }
@@ -93,13 +136,15 @@ html, body {
 .nested {
     padding-left: 15px;
     margin-top: 4px;
-    border-left: 1px solid #21262d; /* Subtle guide line */
+    border-left: 1px solid #21262d;
+    /* Subtle guide line */
 }
 
 /* Right Panel Areas */
 .editor-area {
     flex-grow: 1;
-    background-color: #000000; /* Dark center as seen in pic */
+    background-color: #000000;
+    /* Dark center as seen in pic */
 }
 
 .right-panel {
@@ -118,7 +163,7 @@ html, body {
     border-radius: 6px;
     margin-top: 8px;
     z-index: 1000;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
 }
 
 .dropdown-content li {
@@ -133,4 +178,6 @@ html, body {
     color: white;
 }
 
-.show { display: block; }
+.show {
+    display: block;
+}

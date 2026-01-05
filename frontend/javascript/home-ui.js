@@ -5,7 +5,8 @@ const projectData = [
         type: "folder",
         children: [
             { name: "ReadMe.md", type: "file" },
-            { name: "main.py", type: "file" }
+            { name: "main.py", type: "file" },
+            
         ]
     }
 ];

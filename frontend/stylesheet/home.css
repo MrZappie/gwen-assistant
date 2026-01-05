@@ -23,8 +23,8 @@ html, body {
 }
 
 .nav-btn {
-    background: #3A31D8;
-    color: #8b949e;
+    background: #1f6feb; /* Blue accent for active tab */
+    color: white;
     border: none;
     padding: 6px 16px;
     border-radius: 4px;
@@ -33,9 +33,9 @@ html, body {
     transition: 0.2s;
 }
 
-.nav-btn.active, .nav-btn:hover {
-    background: #1f6feb; /* Blue accent for active tab */
-    color: white;
+.nav-btn:hover{
+    background-color: #58a6ff;
+    color: rgba(255,255,255,0.8);
 }
 
 /* Dashboard Layout */
@@ -120,6 +120,7 @@ html, body {
 .dropdown-content li {
     padding: 10px 15px;
     font-size: 13px;
+    list-style-type: none;
     color: #c9d1d9;
 }
 

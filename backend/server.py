@@ -34,34 +34,6 @@ app.add_middleware(
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 
 
-
-@app.get("/")
-def get_index():
-    return FileResponse("/frontend/index.html")
-
 @app.post("/shutdown")
 def shutdown():
     os.kill(os.getpid(), signal.SIGTERM)
-
-@app.get("/api/quit")
-async def quit():
-
-    def shutdown():
-        time.sleep(0.1)  # allow HTTP response to finish
-
-        ppid = os.getppid()   # the reload process (parent)
-        pid = os.getpid()     # the worker process (child)
-        # kill the worker first
-        try:
-            os.kill(pid, signal.SIGTERM)
-        except:
-            pass
-
-        # kill the reloader (only exists in --reload mode)
-        try:
-            os.kill(ppid, signal.SIGTERM)
-        except:
-            pass
-
-    threading.Thread(target=shutdown, daemon=True).start()
-    return {"status": "shutting down"}

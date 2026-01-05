@@ -7,3 +7,4 @@ python-dotenv
 websockets
 langchain_ollama
 langchain_groq
+pywin32

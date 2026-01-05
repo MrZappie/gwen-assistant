@@ -11,6 +11,58 @@ const projectData = [
     }
 ];
 
+const folderInput = document.getElementById('folder-input');
+const openFolderBtn = document.getElementById('open-folder-btn');
+const treeContainer = document.getElementById('folder-tree');
+
+// 1. Trigger the hidden input when the dropdown item is clicked
+openFolderBtn.addEventListener('click', () => {
+    folderInput.click();
+});
+
+// 2. Handle the selected files
+folderInput.addEventListener('change', (event) => {
+    const files = event.target.files;
+    if (files.length > 0) {
+        // Clear the existing tree
+        treeContainer.innerHTML = '';
+
+        // Convert the flat file list into a nested structure
+        const structuredData = buildHierarchy(files);
+
+        // Render the new tree
+        createTree(structuredData, treeContainer);
+    }
+});
+
+// 3. Helper function to turn flat paths into a Tree Object
+function buildHierarchy(fileList) {
+    const root = [];
+
+    Array.from(fileList).forEach(file => {
+        const pathParts = file.webkitRelativePath.split('/');
+        let currentLevel = root;
+
+        pathParts.forEach((part, index) => {
+            const isFile = index === pathParts.length - 1;
+            let existingPath = currentLevel.find(item => item.name === part);
+
+            if (!existingPath) {
+                existingPath = {
+                    name: part,
+                    type: isFile ? 'file' : 'folder',
+                    children: isFile ? null : []
+                };
+                currentLevel.push(existingPath);
+            }
+
+            if (!isFile) {
+                currentLevel = existingPath.children;
+            }
+        });
+    });
+    return root;
+}
 // 2. Function to create the HTML for the tree
 function createTree(data, container) {
     const ul = document.createElement('ul');
@@ -27,14 +79,13 @@ function createTree(data, container) {
         iconSpan.className = 'tree-icon';
 
         // If it's a file, you might want a different icon or none
-        if (item.type === 'file') {
-            iconSpan.style.visibility = 'hidden'; // Hide icon for files, or change code
+        if (item.type != 'file') {
+            itemDiv.appendChild(iconSpan);
         }
 
         const textSpan = document.createElement('span');
         textSpan.textContent = item.name;
 
-        itemDiv.appendChild(iconSpan);
         itemDiv.appendChild(textSpan);
         // -------------------------
 

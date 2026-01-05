@@ -80,8 +80,8 @@ body {
     /* The Robot Icon */
     display: inline-block;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    margin-right: 8px;
-    vertical-align: middle;
+    margin-right: 4px;
+    font-size: 0.9rem;
 }
 
 /* The state when the folder is open */
@@ -90,16 +90,20 @@ body {
     /* Or 180deg depending on your preference */
     color: #0d6efd;
     /* Optional: change color when active */
+    
 }
 
 /* Ensure the list looks like a tree */
 .tree-list {
     list-style: none;
-    padding-left: 15px;
+    padding-left: 12px;
+    margin: 0;
 }
 
 .nested {
     display: none;
+    margin-left: 8px;
+    border-left: 1px solid #333;
 }
 
 .nested.active {
@@ -109,7 +113,7 @@ body {
 .tree-item {
     display: flex;
     align-items: center;
-    padding: 6px 0;
+    padding: 2px 0;
     cursor: pointer;
     gap: 8px;
 }

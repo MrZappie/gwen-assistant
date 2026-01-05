@@ -13,21 +13,25 @@
 
     <nav class="top-nav">
         <div class="dropdown">
-            <button class="nav-btn" onclick="toggleDropdown('project-menu')">Project</button>
+            <button class="nav-btn active" onclick="toggleDropdown('project-menu')">Project</button>
             <ul id="project-menu" class="dropdown-content">
-                <li>Open Folder</li>
+                <li id="open-folder-btn">Open Folder</li>
+                <li>New File</li>
                 <li>Save All</li>
             </ul>
         </div>
+    </nav>
 
-        <div class="dropdown">
-            <button class="nav-btn" onclick="toggleDropdown('settings-menu')">Settings</button>
-            <ul id="settings-menu" class="dropdown-content">
-                <li>User Preferences</li>
-                <li>Color Theme</li>
-                <li>Keyboard Shortcuts</li>
-            </ul>
-        </div>
+    <input type="file" id="folder-input" webkitdirectory directory multiple style="display: none;">
+
+    <div class="dropdown">
+        <button class="nav-btn" onclick="toggleDropdown('settings-menu')">Settings</button>
+        <ul id="settings-menu" class="dropdown-content">
+            <li>User Preferences</li>
+            <li>Color Theme</li>
+            <li>Keyboard Shortcuts</li>
+        </ul>
+    </div>
     </nav>
 
     <main class="dashboard">

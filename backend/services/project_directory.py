@@ -1,4 +1,4 @@
-from dotenv import set_key
+from dotenv import set_key ,get_key
 import pythoncom
 import win32com.client
 
@@ -19,3 +19,12 @@ def pick_folder_thread():
             return None
     finally:
         pythoncom.CoUninitialize()
+
+def get_project_status():
+    PROJECT_DIR = get_key(".env", "PROJECT_DIR")
+    if not PROJECT_DIR or PROJECT_DIR == '':
+        print("[LOG]: PROJECT_DIR IS NOT PRESENT")
+        return None
+    else:
+        print("[LOG]: PROJECT_DIR IS PRESENT")
+        return PROJECT_DIR

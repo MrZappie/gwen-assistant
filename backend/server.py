@@ -1,6 +1,6 @@
 
 from contextlib import asynccontextmanager
-from dotenv import load_dotenv
+from dotenv import load_dotenv 
 load_dotenv()
 
 from fastapi import FastAPI
@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 import threading, time, os, signal
 
 from backend.routes import file
-
+from backend.services.project_directory import get_project_status
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("-------[SERVER STARTING]---------")
@@ -34,10 +34,17 @@ app.add_middleware(
 
 
 app.include_router(file.router)
-#this must be after including routers
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
-
 
 @app.post("/shutdown")
 def shutdown():
     os.kill(os.getpid(), signal.SIGTERM)
+
+@app.get("/api/project-status")
+def get_status():
+    return {
+        "has_project_directory": get_project_status()
+    }
+
+
+#this must be after including routers and any paths that contain /api/..
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")

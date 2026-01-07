@@ -48,6 +48,8 @@ function createTree(data, container) {
                 nestedUl.classList.toggle('active');
                 itemDiv.classList.toggle('open');
             });
+        } else {
+            
         }
 
         ul.appendChild(li);
@@ -81,3 +83,16 @@ window.onclick = function(event) {
         }
     }
 };
+
+document.addEventListener("DOMContentLoaded", async () => {
+    try {
+        const res = await fetch("/api/project-status");
+        const data = await res.json();
+
+        if (!data.has_project_directory) {
+            window.location.replace("index.html");
+        }
+    } catch (err) {
+        console.error("Backend not reachable", err);
+    }
+});

@@ -91,6 +91,24 @@ body {
     margin: 0;
 }
 
+.tree-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 0;
+    cursor: pointer;
+}
+
+.tree-item i {
+    font-size: 14px;
+    color: #8b949e;
+    width: 16px;
+}
+
+.tree-item:hover i {
+    color: #58a6ff;
+}
+
 .nested {
     display: none;
     margin-left: 8px;
@@ -149,6 +167,9 @@ body {
     margin-top: 8px;
     z-index: 1000;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    cursor: pointer;       /* pointer cursor */
+    display: block;        /* ensures the whole area is clickable */
+    user-select: none;     /* optional: prevents text selection */
 }
 
 .dropdown-content li {

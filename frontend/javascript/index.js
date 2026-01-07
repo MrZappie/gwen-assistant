@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const res = await fetch("http://127.0.0.1:8000/api/project-status");
         const data = await res.json();
         
-        if (data.has_project_directory) {
+        if (data.project_directory) {
             window.location.replace("home.html");
         }
     } catch (err) {

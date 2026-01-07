@@ -1,10 +1,12 @@
 from concurrent.futures import ThreadPoolExecutor
 import asyncio
 import os
-from fastapi import APIRouter
+from pathlib import Path
+from dotenv import get_key
+from fastapi import APIRouter, HTTPException
 
 from backend.services.file_services import get_file_content
-from backend.services.project_directory import pick_folder_thread
+from backend.services.project_directory import get_project_status, pick_folder_thread
 
 executor = ThreadPoolExecutor(max_workers=1)
 
@@ -22,31 +24,42 @@ async def select_directory():
     return {"message": "Directory Changed", "error": False, "directory": path}
 
 
-@router.post("/api/get_file_content/{path: path}")
-def get_file(path : str):
-    path_list = path.split("/") # splits the relative path to directories and files 
-    
+@router.get("/api/get_file_content")
+def get_file(path: str):
+    ROOT_DIR = Path(PROJECT_DIR).resolve()
+    full_path = Path(path).resolve()  # accept absolute paths
+
+    if ROOT_DIR not in full_path.parents and full_path != ROOT_DIR:
+        raise HTTPException(status_code=403, detail="Invalid path")
+
+    if not full_path.is_file():
+        raise HTTPException(status_code=400, detail="Not a file")
+
     return {
-        "name": path_list[-1],
+        "name": full_path.name,
         "type": "file",
-        "content": get_file_content(path)
+        "content": get_file_content(str(full_path))
     }
 
-@router.post("/api/open_folder/{path: path}")
-def open_folder(path: str):
-    if not os.path.isdir(path):
-        return {"error": True, "message": "Not a directory"}
 
-    items = []
-    for entry in os.scandir(path):
-        items.append({
+@router.get("/api/open_folder")
+def open_folder(path: str):
+    PROJECT_DIR = get_key(".env", "PROJECT_DIR")
+    ROOT_DIR = Path(PROJECT_DIR).resolve()
+    full_path = (ROOT_DIR / path).resolve()
+
+    if not str(full_path).startswith(str(ROOT_DIR)):
+        raise HTTPException(status_code=403, detail="Invalid path")
+
+    if not full_path.is_dir():
+        raise HTTPException(status_code=400, detail="Not a directory")
+
+    children = []
+    for entry in full_path.iterdir():
+        children.append({
             "name": entry.name,
             "type": "folder" if entry.is_dir() else "file",
-            "path": entry.path.replace("\\", "/")
+            "path": str((Path(path) / entry.name).as_posix())
         })
 
-    return {
-        "error": False,
-        "path": path,
-        "children": items
-    }
+    return {"children": children}

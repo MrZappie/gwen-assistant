@@ -1,3 +1,4 @@
+import os
 from dotenv import set_key ,get_key
 import pythoncom
 import win32com.client
@@ -28,3 +29,6 @@ def get_project_status():
     else:
         print("[LOG]: PROJECT_DIR IS PRESENT")
         return PROJECT_DIR
+    
+def reset_project():
+    set_key(".env", "PROJECT_DIR", '')

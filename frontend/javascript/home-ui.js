@@ -1,67 +1,61 @@
-// Static project data
-const projectData = [
-    {
-        name: "Simple Calculator",
-        type: "folder",
-        children: [
-            { name: "ReadMe.md", type: "file" },
-            { name: "main.py", type: "file" },
-        ]
+// home-ui.js
+
+import { fetchFolder, fetchFile } from "./home-file.js";
+
+const folderCache = new Map();
+const treeContainer = document.getElementById("folder-tree");
+
+function createTreeItem(item) {
+    const li = document.createElement("li");
+
+    const div = document.createElement("div");
+    div.className = "tree-item";
+
+    const icon = document.createElement("i");
+    icon.classList.add("bi");
+
+    const label = document.createElement("span");
+    label.textContent = item.name;
+
+    if (item.type === "folder") {
+        icon.classList.add("bi-folder");
+    } else {
+        icon.classList.add("bi-file-earmark");
     }
-];
 
-const treeContainer = document.getElementById('folder-tree');
+    div.appendChild(icon);
+    div.appendChild(label);
+    li.appendChild(div);
 
-// Function to create the HTML tree with animations and icons
-function createTree(data, container) {
-    const ul = document.createElement('ul');
-    ul.className = 'tree-list';
+    if (item.type === "folder") {
+        const ul = document.createElement("ul");
+        ul.className = "nested";
+        li.appendChild(ul);
 
-    data.forEach(item => {
-        const li = document.createElement('li');
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'tree-item';
+        div.onclick = async () => {
+            ul.classList.toggle("active");
+            icon.classList.toggle("bi-folder");
+            icon.classList.toggle("bi-folder2-open");
 
-        const iconSpan = document.createElement('span');
-        iconSpan.className = 'tree-icon';
+            if (folderCache.has(item.path)) return;
 
-        if (item.type !== 'file') {
-            itemDiv.appendChild(iconSpan);
-        }
+            const children = await fetchFolder(item.path);
+            folderCache.set(item.path, children);
 
-        const textSpan = document.createElement('span');
-        textSpan.textContent = item.name;
-
-        itemDiv.appendChild(textSpan);
-        li.appendChild(itemDiv);
-
-        if (item.type === 'folder' && item.children) {
-            const nestedUl = document.createElement('div');
-            nestedUl.className = 'nested active';
-
-            itemDiv.classList.add('open');
-
-            createTree(item.children, nestedUl);
-            li.appendChild(nestedUl);
-
-            itemDiv.addEventListener('click', () => {
-                nestedUl.classList.toggle('active');
-                itemDiv.classList.toggle('open');
+            children.forEach(child => {
+                ul.appendChild(createTreeItem(child));
             });
-        } else {
-            
-        }
+        };
+    } else {
+        div.onclick = async () => {
+            const file = await fetchFile(item.path);
+            console.log(file.content);
+        };
+    }
 
-        ul.appendChild(li);
-    });
-
-    container.appendChild(ul);
+    return li;
 }
 
-// Initialize the tree on page load
-document.addEventListener('DOMContentLoaded', () => {
-    createTree(projectData, treeContainer);
-});
 
 // Dropdown Menu Logic
 function toggleDropdown(id) {
@@ -89,10 +83,49 @@ document.addEventListener("DOMContentLoaded", async () => {
         const res = await fetch("/api/project-status");
         const data = await res.json();
 
-        if (!data.has_project_directory) {
+        if (!data.project_directory) {
             window.location.replace("index.html");
+        }else {
+            const rootPath = data.project_directory;
+
+            const rootChildren = await fetchFolder(rootPath);
+            folderCache.set(rootPath, rootChildren);
+
+            const ul = document.createElement("ul");
+            rootChildren.forEach(item => ul.appendChild(createTreeItem(item)));
+
+            treeContainer.appendChild(ul);
         }
     } catch (err) {
         console.error("Backend not reachable", err);
     }
 });
+
+// home-ui.js (after DOMContentLoaded or at the bottom)
+const closeFolderBtn = document.getElementById("close-folder-btn");
+
+closeFolderBtn.addEventListener("click", async () => {
+    try {
+        const res = await fetch("/api/close-project");
+        const data = await res.json();
+
+        if (!data.error) {
+            // Clear the tree
+            treeContainer.innerHTML = "";
+            folderCache.clear();
+
+            window.location.reload();
+
+            // Optionally, show a message
+            console.log("Project closed successfully");
+        }
+    } catch (err) {
+        console.error("Failed to close project", err);
+    }
+
+    // Hide dropdown
+    document.getElementById("project-menu").classList.remove("show");
+});
+
+
+window.toggleDropdown = toggleDropdown;

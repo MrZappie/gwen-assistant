@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 import threading, time, os, signal
 
 from backend.routes import file
-from backend.services.project_directory import get_project_status
+from backend.services.project_directory import get_project_status, reset_project
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("-------[SERVER STARTING]---------")
@@ -39,10 +39,17 @@ app.include_router(file.router)
 def shutdown():
     os.kill(os.getpid(), signal.SIGTERM)
 
+@app.get("/api/close-project")
+def close_project():
+    reset_project()
+    return {
+        "error": False
+    }
+
 @app.get("/api/project-status")
 def get_status():
     return {
-        "has_project_directory": get_project_status()
+        "project_directory": get_project_status()
     }
 
 

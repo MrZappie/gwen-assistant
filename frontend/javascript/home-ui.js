@@ -127,5 +127,33 @@ closeFolderBtn.addEventListener("click", async () => {
     document.getElementById("project-menu").classList.remove("show");
 });
 
+const sidebar = document.getElementById("sidebar");
+const resizer = document.getElementById("resizer");
+
+resizer.addEventListener("mousedown", (e) => {
+    // Prevent text selection while dragging
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+
+    const doDrag = (e) => {
+        // Calculate new width based on mouse position
+        const newWidth = e.clientX - sidebar.getBoundingClientRect().left;
+        
+        // Apply constraints
+        if (newWidth > 150 && newWidth < 600) {
+            sidebar.style.width = `${newWidth}px`;
+        }
+    };
+
+    const stopDrag = () => {
+        document.body.style.cursor = "default";
+        document.body.style.userSelect = "auto";
+        window.removeEventListener("mousemove", doDrag);
+        window.removeEventListener("mouseup", stopDrag);
+    };
+
+    window.addEventListener("mousemove", doDrag);
+    window.addEventListener("mouseup", stopDrag);
+});
 
 window.toggleDropdown = toggleDropdown;

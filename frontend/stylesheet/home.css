@@ -52,6 +52,29 @@ body {
     width: 280px;
     border-right: 1px solid #30363d;
     padding: 25px 20px;
+    height: 100%;
+    /* Fill the dashboard height */
+    overflow-y: auto;
+    /* Enable vertical scrolling */
+    overflow-x: hidden;
+}
+
+/* Custom Scrollbar Styling (Optional - for that "Dark Mode" look) */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: #30363d;
+    border-radius: 10px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: #484f58;
 }
 
 .sidebar h3 {
@@ -60,6 +83,24 @@ body {
     font-weight: 500;
     margin-bottom: 30px;
     letter-spacing: -0.5px;
+}
+.resizer {
+    width: 4px;
+    cursor: col-resize;
+    background-color: #30363d;
+    transition: background-color 0.2s;
+    z-index: 10;
+}
+
+.resizer:hover, .resizer:active {
+    background-color: #58a6ff; /* Glow blue when dragging */
+}
+
+/* Ensure the sidebar has a min/max width so it doesn't break the UI */
+.sidebar {
+    min-width: 150px;
+    max-width: 600px;
+    /* ... existing styles ... */
 }
 
 /* Folder Tree Styling */
@@ -158,7 +199,8 @@ body {
 
 /* Dropdown Menu Styles */
 .dropdown-content {
-    display: none; /* Keep hidden by default */
+    display: none;
+    /* Keep hidden by default */
     position: absolute;
     background-color: #161b22;
     min-width: 180px;
@@ -168,13 +210,15 @@ body {
     z-index: 1000;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
     user-select: none;
-    padding: 0; /* Add this to remove default list padding */
+    padding: 0;
+    /* Add this to remove default list padding */
 }
 
 /* Only this class makes it visible */
 .dropdown-content.show {
     display: block;
 }
+
 .dropdown-content li {
     padding: 10px 15px;
     font-size: 13px;

@@ -167,9 +167,7 @@ body {
     margin-top: 8px;
     z-index: 1000;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-    cursor: pointer;       /* pointer cursor */
-    display: block;        /* ensures the whole area is clickable */
-    user-select: none;     /* optional: prevents text selection */
+    cursor: pointer;  /* optional: prevents text selection */
 }
 
 .dropdown-content li {
@@ -184,6 +182,10 @@ body {
     color: white;
 }
 
+.dropdown-content.show {
+    display: block !important;
+}
+
 .show {
-    display: block;
+    display: none;
 }

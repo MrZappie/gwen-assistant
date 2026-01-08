@@ -188,5 +188,5 @@ body {
 }
 
 .show {
-    display: none;
+    display: block;
 }

@@ -26,6 +26,7 @@ async def select_directory():
 
 @router.get("/api/get_file_content")
 def get_file(path: str):
+    PROJECT_DIR = get_key(".env","PROJECT_DIR")
     ROOT_DIR = Path(PROJECT_DIR).resolve()
     full_path = Path(path).resolve()  # accept absolute paths
 

@@ -59,25 +59,33 @@ function createTreeItem(item) {
 
 // Dropdown Menu Logic
 function toggleDropdown(id) {
+    // 1. Get the specific dropdown we want to toggle
+    const target = document.getElementById(id);
+    const isCurrentlyShow = target.classList.contains("show");
+
+    // 2. Close ALL dropdowns first
     const dropdowns = document.getElementsByClassName("dropdown-content");
     for (let i = 0; i < dropdowns.length; i++) {
-        if (dropdowns[i].id !== id) {
-            dropdowns[i].classList.remove('show');
-        }
+        dropdowns[i].classList.remove('show');
     }
-    document.getElementById(id).classList.toggle("show");
+
+    // 3. If the one we clicked wasn't already open, open it
+    if (!isCurrentlyShow) {
+        target.classList.add("show");
+    }
 }
 
-// Close dropdowns if user clicks outside
+// Ensure the window click doesn't close the menu immediately when clicking the button
 window.onclick = function(event) {
     if (!event.target.matches('.nav-btn')) {
         const dropdowns = document.getElementsByClassName("dropdown-content");
         for (let i = 0; i < dropdowns.length; i++) {
-            dropdowns[i].classList.remove('show');
+            if (dropdowns[i].classList.contains('show')) {
+                dropdowns[i].classList.remove('show');
+            }
         }
     }
 };
-
 document.addEventListener("DOMContentLoaded", async () => {
     try {
         const res = await fetch("/api/project-status");

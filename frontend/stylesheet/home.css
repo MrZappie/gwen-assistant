@@ -42,8 +42,9 @@ body {
 /* Dashboard Layout */
 .dashboard {
     display: flex;
-    height: calc(100vh - 45px);
+    height: calc(100vh - 45px); /* Adjusted for top-nav height */
     background-color: #0d1117;
+    overflow: hidden; /* Prevent dashboard from scrolling, scroll sidebar/editor instead */
 }
 
 /* Sidebar Styling */
@@ -56,6 +57,16 @@ body {
     /* Fill the dashboard height */
     overflow-y: auto;
     /* Enable vertical scrolling */
+    overflow-x: hidden;
+}.sidebar {
+    background-color: #0B0B1D;
+    width: 280px;
+    min-width: 150px;
+    max-width: 600px;
+    border-right: 1px solid #30363d;
+    padding: 25px 20px;
+    height: 100%;
+    overflow-y: auto;
     overflow-x: hidden;
 }
 
@@ -185,10 +196,15 @@ body {
     border-left: 1px solid #21262d;
 }
 
+
 /* Right Panel Areas */
 .editor-area {
     flex-grow: 1;
-    background-color: #000000;
+    display: flex;
+    flex-direction: column;
+    background-color: #1e1e1e; /* Standard editor dark grey */
+    height: 100%;
+    overflow: hidden;
 }
 
 .right-panel {
@@ -218,7 +234,6 @@ body {
 .dropdown-content.show {
     display: block;
 }
-
 .dropdown-content li {
     padding: 10px 15px;
     font-size: 13px;
@@ -229,6 +244,128 @@ body {
 .dropdown-content li:hover {
     background-color: #1f6feb;
     color: white;
+}
+
+#editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 15px;
+    background-color: #252526;
+    border-bottom: 1px solid #333;
+    color: #cccccc;
+    font-size: 13px;
+    font-family: 'Segoe UI', sans-serif;
+    min-height: 35px;
+}
+#file-content-display {
+    margin: 0;
+    padding: 20px;
+    overflow: auto;
+    flex-grow: 1;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    line-height: 1.5;
+    white-space: pre-wrap; /* Maintains formatting but wraps long lines */
+}
+
+/* Optional highlight for the selected file in sidebar */
+.selected-file {
+    background-color: #21262d !important;
+    color: #58a6ff !important;
+    border-radius: 4px;
+}
+
+.editor-area {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+#file-editor {
+    flex-grow: 1;
+    width: 100%;
+    border: none;
+    outline: none;
+    padding: 20px;
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+    resize: none; /* Disables the bottom-right drag handle */
+    line-height: 1.6;
+    tab-size: 4; /* Standard code indentation */
+    white-space: pre; /* Keeps code formatting exactly as fetched */
+    overflow: auto;
+}
+
+#tabs-container {
+    display: flex; /* Aligns children (tabs) in a row */
+    flex-direction: row; /* Ensures horizontal flow */
+    background-color: #0d1117; /* Match your background */
+    border-bottom: 1px solid #30363d;
+    overflow-x: auto; /* Allows scrolling if many tabs are open */
+    overflow-y: hidden;
+    height: 35px; /* Fixed height for the tab bar */
+}
+
+.tab {
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    height: 100%;
+    background-color: #0b0b1d;
+    border-right: 1px solid #30363d;
+    cursor: pointer;
+    font-size: 13px;
+    color: #c9d1d9;
+    white-space: nowrap; /* Prevents text from wrapping within the tab */
+    min-width: fit-content; /* Adjusts tab width to the file name */
+}
+
+.tab.active {
+    background-color: #1e1e1e; /* Highlight for active file */
+    color: #ffffff;
+}
+
+.tab i {
+    margin-left: 8px; /* Space for the 'x' button */
+    font-size: 14px;
+}
+
+#file-editor::-webkit-scrollbar {
+    width: 8px; /* Slightly wider for ease of use in the editor */
+    height: 8px; /* For horizontal scroll if code is wide */
+}
+
+#file-editor::-webkit-scrollbar-track {
+    background: #1e1e1e; /* Matches editor background */
+}
+
+#file-editor::-webkit-scrollbar-thumb {
+    background: #30363d; /* Same color as sidebar */
+    border-radius: 10px;
+}
+
+#file-editor::-webkit-scrollbar-thumb:hover {
+    background: #484f58; /* Same hover color as sidebar */
+}
+
+/* Targets the horizontal tab container scrollbar */
+#tabs-container::-webkit-scrollbar {
+    height: 4px; /* Thin scrollbar for the tab row */
+}
+
+#tabs-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#tabs-container::-webkit-scrollbar-thumb {
+    background: #30363d;
+    border-radius: 10px;
+}
+
+#tabs-container::-webkit-scrollbar-thumb:hover {
+    background: #484f58;
 }
 
 .show {

@@ -125,5 +125,3 @@ def find_dir(dirname: str) -> str:
 def get_project_dir() -> str:
     """Gives the absolute path of the project directory."""
     return get_value("PROJECT_DIR")
-
-TOOLS = [write_tool, list_dir, read_file, find_file,find_dir,get_project_dir]

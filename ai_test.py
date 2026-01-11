@@ -1,18 +1,25 @@
-
-
-
-
+#this was edited
 from dotenv import load_dotenv
-import os
-
-# Load .env from your project root
-load_dotenv(".env",override=True)  # make sure the path is correct
-
+load_dotenv(".env", override=True)
 
 from ai.utils.stream_print import print_stream
 from ai.agent.graph_builder import app
+from langchain_core.messages import HumanMessage
 
+# Initialize persistent state
+state = {"messages": []}
 
+while True:
+    user_input = input("\nYou: ")
+    if user_input.lower() == "q":
+        break
 
-inputs = {"messages": [("user", input("Enter Message: \n"))]}
-print_stream(app.stream(inputs, stream_mode="values"))
+    from langchain_core.messages import HumanMessage
+    state["messages"].append(HumanMessage(content=user_input))
+
+    final_state = None
+    for event in app.stream(state, stream_mode="values"):
+        final_state = event
+        print_stream(event)
+
+    state = final_state

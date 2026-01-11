@@ -1,8 +1,10 @@
+def print_stream(state):
+    if "messages" not in state:
+        return
 
-def print_stream(stream):
-    for s in stream:
-        message = s["messages"][-1]
-        if isinstance(message, tuple):
-            print(message)
-        else:
-            message.pretty_print()
+    message = state["messages"][-1]
+
+    if hasattr(message, "pretty_print"):
+        message.pretty_print()
+    else:
+        print(message)

@@ -1,12 +1,12 @@
 
 import os
-from dotenv import get_key
+from config.preferences import get_value
 
 MAX_CHARS = 25000
 
 def get_file_content(file_path):
     
-    PROJECT_DIR = get_key(".env","PROJECT_DIR")
+    PROJECT_DIR = get_value("PROJECT_DIR")
     abs_file_path = os.path.join(PROJECT_DIR,file_path)
     if not abs_file_path.startswith(PROJECT_DIR):
         return f'Error: {file_path} is not a valid directory (it is outside project directory)'

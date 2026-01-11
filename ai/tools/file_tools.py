@@ -1,10 +1,10 @@
 import os
-from dotenv import get_key
+from config.preferences import get_value
 from langchain_core.tools import tool
 
-PROJECT_DIR = get_key(".env","PROJECT_DIR")
-
 def safe_path(user_path: str) -> str:
+    
+    PROJECT_DIR = get_value("PROJECT_DIR")
     joined_path = os.path.join(PROJECT_DIR, user_path)
     resolved_path = os.path.realpath(joined_path)
 
@@ -35,6 +35,7 @@ def find_file(filename: str) -> str:
     """Search for a file by name anywhere inside the project directory."""
     import difflib
 
+    PROJECT_DIR = get_value("PROJECT_DIR")
     matches = []
     all_files = []
 
@@ -65,6 +66,8 @@ def find_file(filename: str) -> str:
 @tool
 def list_dir(path: str) -> str:
     """List files and folders directly inside a given directory (non-recursive) (also PROJECT_DIR is the path by default)."""
+    
+    PROJECT_DIR = get_value("PROJECT_DIR")
     try:
         safe = safe_path(path)
         if not os.path.isdir(safe):
@@ -86,6 +89,7 @@ def list_dir(path: str) -> str:
 @tool
 def write_tool(text: str, file_path: str):
     """ Write text content to a file inside the project directory."""
+    
     try:
         safe = safe_path(file_path)
         os.makedirs(os.path.dirname(safe), exist_ok=True)
@@ -101,6 +105,8 @@ def find_dir(dirname: str) -> str:
     Search for a directory or module by name anywhere inside the project directory.
 
     """
+    
+    PROJECT_DIR = get_value("PROJECT_DIR")
     matches = []
 
     for root, dirs, _ in os.walk(PROJECT_DIR):
@@ -115,4 +121,9 @@ def find_dir(dirname: str) -> str:
 
     return "No matching directories found."
 
-TOOLS = [write_tool, list_dir, read_file, find_file,find_dir]
+@tool
+def get_project_dir() -> str:
+    """Gives the absolute path of the project directory."""
+    return get_value("PROJECT_DIR")
+
+TOOLS = [write_tool, list_dir, read_file, find_file,find_dir,get_project_dir]

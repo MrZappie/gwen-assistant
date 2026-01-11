@@ -1,12 +1,11 @@
 from typing import cast
-from config.settings import PROJECT_DIR
-from tools.file_tools import TOOLS
-from models.state import AgentState
+from ai.tools.file_tools import TOOLS
+from ai.models.state import AgentState
 from langgraph.graph import StateGraph, END
 from langchain_core.messages import SystemMessage, AIMessage, ToolCall
 from langgraph.prebuilt.tool_node import ToolNode
 
-from agent.model import get_model
+from ai.agent.model import get_model
 
 def plan_mode_ai(state: AgentState) -> AgentState:
     """
@@ -18,7 +17,7 @@ def plan_mode_ai(state: AgentState) -> AgentState:
     system_prompt = SystemMessage(
         content="""
         You are an assistant that decides whether a user's message
-        requires normal conversation or code/module analysis.
+        requires normal conversation or code/module analysis for the next coder assistant.
 
         Rules:
         1. Output ONLY one word: 'analysis' or 'conversation'.

@@ -2,11 +2,11 @@ from concurrent.futures import ThreadPoolExecutor
 import asyncio
 import os
 from pathlib import Path
-from dotenv import get_key
 from fastapi import APIRouter, HTTPException
 
 from backend.services.file_services import get_file_content
-from backend.services.project_directory import get_project_status, pick_folder_thread
+from backend.services.project_directory import pick_folder_thread
+from config.preferences import get_value
 
 executor = ThreadPoolExecutor(max_workers=1)
 
@@ -26,7 +26,7 @@ async def select_directory():
 
 @router.get("/api/get_file_content")
 def get_file(path: str):
-    PROJECT_DIR = get_key(".env","PROJECT_DIR")
+    PROJECT_DIR = get_value("PROJECT_DIR")
     ROOT_DIR = Path(PROJECT_DIR).resolve()
     full_path = Path(path).resolve()  # accept absolute paths
 
@@ -45,7 +45,7 @@ def get_file(path: str):
 
 @router.get("/api/open_folder")
 def open_folder(path: str):
-    PROJECT_DIR = get_key(".env", "PROJECT_DIR")
+    PROJECT_DIR = get_value("PROJECT_DIR")
     ROOT_DIR = Path(PROJECT_DIR).resolve()
     full_path = (ROOT_DIR / path).resolve()
 

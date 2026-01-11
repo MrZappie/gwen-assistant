@@ -1,5 +1,5 @@
 import os
-from dotenv import set_key ,get_key
+from config.preferences import set_value , get_value
 import pythoncom
 import win32com.client
 
@@ -14,7 +14,7 @@ def pick_folder_thread():
         folder_item = folder.Self
         try:
             path = folder_item.Path            
-            set_key(".env", "PROJECT_DIR", path)
+            set_value("PROJECT_DIR", path)
             return path
         except AttributeError:
             return None
@@ -22,7 +22,7 @@ def pick_folder_thread():
         pythoncom.CoUninitialize()
 
 def get_project_status():
-    PROJECT_DIR = get_key(".env", "PROJECT_DIR")
+    PROJECT_DIR = get_value("PROJECT_DIR")
     if not PROJECT_DIR or PROJECT_DIR == '':
         print("[LOG]: PROJECT_DIR IS NOT PRESENT")
         return None
@@ -31,4 +31,4 @@ def get_project_status():
         return PROJECT_DIR
     
 def reset_project():
-    set_key(".env", "PROJECT_DIR", '')
+    set_value("PROJECT_DIR", '')

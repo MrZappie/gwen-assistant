@@ -1,6 +1,8 @@
 import os
-from config.settings import PROJECT_DIR
+from dotenv import get_key
 from langchain_core.tools import tool
+
+PROJECT_DIR = get_key(".env","PROJECT_DIR")
 
 def safe_path(user_path: str) -> str:
     joined_path = os.path.join(PROJECT_DIR, user_path)

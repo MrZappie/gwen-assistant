@@ -11,7 +11,7 @@ from fastapi.staticfiles import StaticFiles
 
 import os, signal
 
-from backend.routes import file
+from backend.routes import chat, file
 from backend.services.project_directory import get_project_status, reset_project
 from config.preferences import preference_init
 
@@ -57,6 +57,7 @@ app.add_middleware(
 
 
 app.include_router(file.router)
+app.include_router(chat.router)
 
 @app.post("/shutdown")
 def shutdown():

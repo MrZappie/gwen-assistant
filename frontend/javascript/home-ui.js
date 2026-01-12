@@ -179,6 +179,7 @@ closeFolderBtn.addEventListener("click", async () => {
 
 const sidebar = document.getElementById("sidebar");
 const resizer = document.getElementById("resizer");
+
 resizer.addEventListener("mousedown", (e) => {
     document.body.style.cursor = "col-resize";
     document.body.style.userSelect = "none";

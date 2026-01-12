@@ -94,7 +94,7 @@ def should_continue(state: AgentState):
     if last.tool_calls:
         return "continue"
 
-    if last.content.strip() == "TASK_COMPLETE":
+    if "TASK_COMPLETE" in last.content.strip():
         return "end"
 
     if mode == "conversation":
@@ -139,4 +139,7 @@ graph.add_conditional_edges(
 
 graph.add_edge("planner","model_call")
 graph.add_edge("tools","model_call")
+graph.add_edge("reflect","model_call")
+
+
 app = graph.compile()

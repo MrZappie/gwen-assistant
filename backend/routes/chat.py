@@ -2,6 +2,9 @@ import json
 import os
 import uuid
 
+from dotenv import load_dotenv
+load_dotenv(override=True)
+
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from langchain_core.messages import HumanMessage
@@ -62,7 +65,7 @@ async def chat_endpoint(session_id: str, user_input: str):
     # 3. Generator Function (The Logic Stream)
     async def event_generator():
         # Yield the user message first so frontend sees it was accepted
-        yield json.dumps({"type": "human", "content": user_input.content}) + "\n"
+        yield json.dumps({"type": "human", "content": user_input}) + "\n"
 
         # Stream the graph execution
         current_state = state

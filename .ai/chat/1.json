@@ -30,4 +30,25 @@
   "content": "Your name is Zappie.\n\nTASK_COMPLETE",
   "id": "lc_run--019bb176-73b4-7270-bad4-5534a71b414e-0",
   "tool_calls": []
+},
+{
+  "type": "human",
+  "content": "hi",
+  "id": "913850df-3f57-42f2-bd31-f702471b4c63"
+},
+{
+  "type": "human",
+  "content": "hi",
+  "id": "c5ecfeea-fd81-48ed-8484-cbbdc4e578bf"
+},
+{
+  "type": "human",
+  "content": "Hello there nice to meet you",
+  "id": "0ca7014e-5cf1-46e6-be75-05939bae0f74"
+},
+{
+  "type": "ai",
+  "content": "Hello! How can I help you today?\n\nTASK_COMPLETE",
+  "id": "lc_run--019bb69a-eb95-77d0-9917-1c3c79440db6-0",
+  "tool_calls": []
 }]

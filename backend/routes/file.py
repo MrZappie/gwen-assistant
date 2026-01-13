@@ -44,12 +44,14 @@ def get_file(path: str):
 
 
 @router.get("/api/open_folder")
-def open_folder(path: str):
+def open_folder(path: str = ""):
     PROJECT_DIR = get_value("PROJECT_DIR")
     ROOT_DIR = Path(PROJECT_DIR).resolve()
+
+    # If path is empty, use root
     full_path = (ROOT_DIR / path).resolve()
 
-    if not str(full_path).startswith(str(ROOT_DIR)):
+    if ROOT_DIR not in full_path.parents and full_path != ROOT_DIR:
         raise HTTPException(status_code=403, detail="Invalid path")
 
     if not full_path.is_dir():
@@ -57,10 +59,12 @@ def open_folder(path: str):
 
     children = []
     for entry in full_path.iterdir():
+        rel_path = entry.relative_to(ROOT_DIR).as_posix()
+
         children.append({
             "name": entry.name,
             "type": "folder" if entry.is_dir() else "file",
-            "path": str((Path(path) / entry.name).as_posix())
+            "path": rel_path
         })
 
     return {"children": children}

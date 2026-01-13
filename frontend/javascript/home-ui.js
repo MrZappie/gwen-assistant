@@ -13,59 +13,81 @@ const tabsContainer = document.getElementById("tabs-container");
 const openFiles = new Map();
 let activeFilePath = null;
 
+function sortItems(items) {
+    if (!Array.isArray(items)) return [];
+
+    return [...items].sort((a, b) => {
+        if (a.type !== b.type) {
+            return a.type === "folder" ? -1 : 1;
+        }
+        return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+    });
+}
+
+
 function createTreeItem(item) {
     const li = document.createElement("li");
-    const div = document.createElement("div");
-    div.className = "tree-item";
+    const row = document.createElement("div");
+    row.className = "tree-item";
 
     const icon = document.createElement("i");
-    icon.classList.add("bi");
+    icon.className = item.type === "folder"
+        ? "bi bi-folder"
+        : "bi bi-file-earmark";
+
     const label = document.createElement("span");
     label.textContent = item.name;
 
-    if (item.type === "folder") {
-        icon.classList.add("bi-folder");
-    } else {
-        icon.classList.add("bi-file-earmark");
-    }
-
-    div.appendChild(icon);
-    div.appendChild(label);
-    li.appendChild(div);
+    row.appendChild(icon);
+    row.appendChild(label);
+    li.appendChild(row);
 
     if (item.type === "folder") {
-        const ul = document.createElement("ul");
-        ul.className = "nested";
-        li.appendChild(ul);
+        const childrenContainer = document.createElement("ul");
+        childrenContainer.className = "nested";
+        li.appendChild(childrenContainer);
 
-        div.onclick = async () => {
-            ul.classList.toggle("active");
-            icon.classList.toggle("bi-folder");
-            icon.classList.toggle("bi-folder2-open");
+        let loaded = false;
 
-            if (folderCache.has(item.path)) return;
+        row.addEventListener("click", async () => {
+            childrenContainer.classList.toggle("active");
 
-            const children = await fetchFolder(item.path);
-            folderCache.set(item.path, children);
+            icon.className = childrenContainer.classList.contains("active")
+                ? "bi bi-folder2-open"
+                : "bi bi-folder";
 
-            children.forEach(child => {
-                ul.appendChild(createTreeItem(child));
-            });
-        };
+            if (loaded) return;
+            loaded = true;
+
+            try {
+                console.log("Loading folder:", item.path);   // DEBUG
+
+                const raw = await fetchFolder(item.path);
+                console.table(raw);                          // DEBUG
+
+                const children = sortItems(raw);
+
+                children.forEach(child => {
+                    childrenContainer.appendChild(createTreeItem(child));
+                });
+            } catch (err) {
+                console.error("Folder load failed:", err);
+            }
+        });
     } else {
-        // UPDATED: Now uses the tab-management logic
-        div.onclick = () => openFile(item);
+        row.addEventListener("click", () => openFile(item));
     }
 
     return li;
 }
+
 
 function renderTabs() {
     tabsContainer.innerHTML = "";
     openFiles.forEach((fileData, path) => {
         const tab = document.createElement("div");
         tab.className = `tab ${path === activeFilePath ? "active" : ""}`;
-        
+
         const label = document.createElement("span");
         label.textContent = fileData.name;
         label.onclick = () => switchToFile(path);
@@ -105,11 +127,11 @@ function switchToFile(path) {
     activeFilePath = path;
     const fileData = openFiles.get(path);
     fileEditor.value = fileData.content;
-    
+
     // Highlight the file in the sidebar tree
     document.querySelectorAll('.tree-item').forEach(el => el.classList.remove('selected-file'));
     // (Logic to find and highlight sidebar item could be added here)
-    
+
     renderTabs();
 }
 
@@ -149,13 +171,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!data.project_directory) {
             window.location.replace("index.html");
         } else {
-            const rootPath = data.project_directory;
-            const rootChildren = await fetchFolder(rootPath);
-            folderCache.set(rootPath, rootChildren);
+            const rootPath = "";   // root must always be empty string
+
+            const rootItem = {
+                name: data.project_directory.split(/[\\/]/).pop(), // show folder name only
+                path: rootPath,
+                type: "folder"
+            };
 
             const ul = document.createElement("ul");
-            rootChildren.forEach(item => ul.appendChild(createTreeItem(item)));
+            ul.appendChild(createTreeItem(rootItem));
             treeContainer.appendChild(ul);
+
+
         }
     } catch (err) {
         console.error("Backend not reachable", err);

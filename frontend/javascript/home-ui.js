@@ -310,3 +310,112 @@ document.addEventListener("keydown", (e) => {
         handleSave();
     }
 });
+
+// --- Chat Logic ---
+
+// --- Advanced Chat Logic with History ---
+
+const chatInput = document.getElementById("chat-input");
+const chatSendBtn = document.getElementById("chat-send-btn");
+const chatMessages = document.getElementById("chat-messages");
+const newChatBtn = document.getElementById("new-chat-btn");
+const historyDropdown = document.getElementById("chat-history-dropdown");
+
+// State
+let savedChats = [];     // Stores old chats: [{ title: "Hi...", messages: [...] }]
+let currentSession = []; // Stores currently visible messages
+
+// 1. Function to Render a Single Message to DOM
+function renderMessage(text, type) {
+    const msgDiv = document.createElement("div");
+    msgDiv.className = `message ${type}`;
+    msgDiv.textContent = text;
+    chatMessages.appendChild(msgDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// 2. Send Message Logic
+function sendMessage() {
+    const text = chatInput.value.trim();
+    if (!text) return;
+
+    // Save to memory
+    currentSession.push({ text: text, type: "user" });
+    
+    // Render to screen
+    renderMessage(text, "user");
+    
+    chatInput.value = "";
+
+    // Simulate System Reply (Optional)
+    setTimeout(() => {
+        const reply = "Echo: " + text;
+        currentSession.push({ text: reply, type: "system" });
+        renderMessage(reply, "system");
+    }, 500);
+}
+
+// 3. NEW CHAT Logic
+newChatBtn.addEventListener("click", () => {
+    // Only save if the current session actually has messages
+    if (currentSession.length > 0) {
+        
+        // Generate a title (first 15 chars of first message)
+        const firstMsg = currentSession[0].text;
+        const title = firstMsg.length > 15 ? firstMsg.substring(0, 15) + "..." : firstMsg;
+        
+        // Save to History Array
+        savedChats.push({
+            id: Date.now(),
+            title: title,
+            messages: [...currentSession] // Clone array
+        });
+
+        // Add to Dropdown
+        const option = document.createElement("option");
+        option.value = savedChats.length - 1; // Index in savedChats array
+        option.textContent = title;
+        historyDropdown.appendChild(option);
+    }
+
+    // Reset UI for fresh start
+    currentSession = [];
+    chatMessages.innerHTML = "";
+    historyDropdown.value = "current"; // Reset dropdown to 'Current'
+});
+
+// 4. LOAD OLD CHAT Logic (Dropdown Change)
+historyDropdown.addEventListener("change", (e) => {
+    const value = e.target.value;
+
+    // Clear current view
+    chatMessages.innerHTML = "";
+
+    if (value === "current") {
+        // If user switches back to "Current Session" (if we want to support that logic)
+        // For now, "New Chat" clears current, so 'current' is just empty.
+        currentSession.forEach(msg => renderMessage(msg.text, msg.type));
+    } else {
+        // Load data from savedChats
+        const chatIndex = parseInt(value);
+        const oldChat = savedChats[chatIndex];
+        
+        // Render old messages
+        oldChat.messages.forEach(msg => renderMessage(msg.text, msg.type));
+        
+        // IMPORTANT: We are viewing history. 
+        // Any new messages typed here will technically be part of this 'current view'
+        // unless you want to lock old chats. 
+        // For simplicity, we copy it back to currentSession to allow continuing the chat.
+        currentSession = [...oldChat.messages];
+    }
+});
+
+// Event Listeners for Sending
+chatSendBtn.addEventListener("click", sendMessage);
+chatInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+});

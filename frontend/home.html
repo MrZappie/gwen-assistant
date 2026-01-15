@@ -54,7 +54,29 @@
             <textarea id="file-editor" spellcheck="false"></textarea>
         </section>
         <div id="right-resizer" class="resizer"></div>
-        <aside class="right-panel" id="right-panel"></aside>
+        <aside class="right-panel" id="right-panel">
+
+            <div class="chat-header-minimal">
+                <select id="chat-history-dropdown" class="history-dropdown">
+                    <option value="current" selected>Current Session</option>
+                </select>
+                <button id="new-chat-btn" class="icon-btn" title="Start New Chat">
+                    <i class="bi bi-plus-lg"></i>
+                </button>
+            </div>
+
+            <div class="chat-container">
+                <div id="chat-messages" class="chat-messages">
+                </div>
+
+                <div class="chat-input-area">
+                    <textarea id="chat-input" placeholder="Type a message..." rows="1"></textarea>
+                    <button id="chat-send-btn" class="send-btn">
+                        <i class="bi bi-arrow-up-short"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
     </main>
 
     <script type="module" src="javascript/home-ui.js"></script>

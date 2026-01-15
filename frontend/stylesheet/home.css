@@ -208,14 +208,11 @@ body {
     overflow: hidden;
 }
 
-
 .right-panel {
-    width: 250px;
-    /* Starting width */
-    background-color: #040914;
-    border-left: 1px solid #30363d;
-    flex-shrink: 0;
-    /* IMPORTANT: Prevents it from squishing automatically */
+    background-color: #1e1e1e;
+    border-left: 1px solid #333;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Dropdown Menu Styles */
@@ -439,6 +436,119 @@ body {
     letter-spacing: -0.5px;
     text-transform: lowercase;
     font-variant: small-caps;
+}
+
+.chat-header-minimal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    border-bottom: 1px solid #2a2a2a;
+    background-color: #252526;
+    height: 40px;
+}
+
+/* The Dropdown (Top Left) */
+.history-dropdown {
+    background-color: #1e1e1e;
+    color: #ccc;
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 2px 5px;
+    font-size: 0.85rem;
+    outline: none;
+    max-width: 150px;
+    /* Keep it compact */
+    cursor: pointer;
+}
+
+.history-dropdown:hover {
+    border-color: #555;
+}
+
+/* New Chat Button (+) */
+.icon-btn {
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-btn:hover {
+    background-color: #333;
+    color: white;
+}
+
+/* --- Chat Container (Below Header) --- */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 40px);
+    /* Subtract header height */
+}
+
+/* Messages Area */
+.chat-messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    /* Messages stack from bottom */
+    padding: 15px;
+    gap: 8px;
+}
+
+/* (Keep your previous Message Bubble & Input CSS here) */
+.message {
+    padding: 6px 10px;
+    border-radius: 6px;
+    max-width: 100%;
+    word-wrap: break-word;
+    font-size: 0.9rem;
+    color: #ddd;
+}
+
+.message.user {
+    align-self: flex-end;
+    background-color: #0e639c;
+}
+
+.message.system {
+    align-self: flex-start;
+    color: #888;
+    font-style: italic;
+}
+
+.chat-input-area {
+    padding: 10px;
+    border-top: 1px solid #333;
+    display: flex;
+    gap: 10px;
+    background-color: #1e1e1e;
+}
+
+#chat-input {
+    flex-grow: 1;
+    background: transparent;
+    border: none;
+    color: white;
+    resize: none;
+    outline: none;
+    border-bottom: 1px solid #444;
+}
+
+.send-btn {
+    background: none;
+    border: none;
+    color: #0e639c;
+    cursor: pointer;
+    font-size: 1.2rem;
 }
 
 .show {

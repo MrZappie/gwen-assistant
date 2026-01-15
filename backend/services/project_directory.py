@@ -2,24 +2,32 @@ import os
 from config.preferences import set_value , get_value
 import pythoncom
 import win32com.client
-
+import win32gui
 
 def pick_folder_thread():
     pythoncom.CoInitialize()
     try:
         shell = win32com.client.Dispatch("Shell.Application")
-        folder = shell.BrowseForFolder(0, "Select Project Directory", 0, None)
+
+        hwnd = win32gui.GetForegroundWindow()
+
+        folder = shell.BrowseForFolder(
+            hwnd,
+            "Select Project Directory",
+            0,
+            None
+        )
+
         if folder is None:
             return None
-        folder_item = folder.Self
-        try:
-            path = folder_item.Path            
-            set_value("PROJECT_DIR", path)
-            return path
-        except AttributeError:
-            return None
+
+        path = folder.Self.Path
+        set_value("PROJECT_DIR", path)
+        return path
+
     finally:
         pythoncom.CoUninitialize()
+
 
 def get_project_status():
     PROJECT_DIR = get_value("PROJECT_DIR")

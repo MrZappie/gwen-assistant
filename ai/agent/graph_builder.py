@@ -2,7 +2,7 @@ from typing import cast
 from ai.tools.tool_registry import TOOLS
 from ai.models.state import AgentState
 from langgraph.graph import StateGraph, END
-from langchain_core.messages import SystemMessage, AIMessage, ToolCall , HumanMessage
+from langchain_core.messages import SystemMessage, AIMessage, ToolMessage , HumanMessage
 from langgraph.prebuilt.tool_node import ToolNode
 
 from ai.agent.model import get_model
@@ -84,7 +84,14 @@ def model_call(state: AgentState) -> AgentState:
                         ))
     model = get_model(bind=True)    
     
-    response = model.invoke([system_prompt] + state["messages"][:]) # type: ignore
+    def messages_for_model(messages):
+        return [
+            m for m in messages
+            if not isinstance(m, ToolMessage)
+        ]
+
+
+    response = model.invoke([system_prompt] +  messages_for_model(state["chat_history"][-10:]) + state["messages"][:]) # type: ignore
     return {"messages": [response]}
 
 def should_continue(state: AgentState):

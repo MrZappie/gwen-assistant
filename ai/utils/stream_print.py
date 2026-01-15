@@ -18,7 +18,8 @@ def print_stream_refined(state, printed_ids):
             
             if message.content.strip():
                 print("\n" + "="*20)
-                message.pretty_print()
+                if isinstance(message , AIMessage):
+                    print(f"[AI]:{message.content}")
                 print("="*20)
             
             printed_ids.add(message.id)

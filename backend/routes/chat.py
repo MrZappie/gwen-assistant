@@ -1,94 +1,93 @@
 import json
 import os
 import uuid
-
 from dotenv import load_dotenv
-load_dotenv(override=True)
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
-from langchain_core.messages import HumanMessage
-from ai.agent.graph_builder import app as agent_app
+
+from langchain_core.messages import HumanMessage, AIMessage
+
+from ai.agent.graph_builder import app
+from ai.models.chat_request import ChatRequest
 from ai.utils.storage import (
-    init_ai_storage, 
-    append_to_chat, 
-    load_chat, 
+    init_ai_storage,
+    append_to_chat,
+    load_chat,
     CHAT_DIR,
-    serialize_message
+    serialize_message,
 )
 
-router = APIRouter()
+load_dotenv(override=True)
 
+router = APIRouter()
+init_ai_storage()
 
 @router.get("/chat/{session_id}")
 async def get_chat_history(session_id: str):
     """
-    Endpoint 1: Load chat history.
-    Reads the raw JSON file directly to be fast.
+    Returns the clean (non-debug) chat log.
     """
-    file_path = os.path.join(CHAT_DIR, f"{session_id}.json")
+    dir_path = os.path.join(CHAT_DIR, session_id)
+    file_path = os.path.join(dir_path, "log.json")
+
     if not os.path.exists(file_path):
-        return [] # Return empty list if no session exists
-    
+        return []
+
     try:
         with open(file_path, "r") as f:
             return json.load(f)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
 
 @router.post("/chat/{session_id}")
-async def chat_endpoint(session_id: str, user_input: str):
-    """
-    Endpoint 2: Give user input to model.
-    Streams the response back event-by-event.
-    """
-    
-    # 1. Re-hydrate State (Load history from disk)
-    # Since HTTP is stateless, we must reload context every time.
-    past_messages = load_chat(session_id)
-    
-    # Create the set of IDs we already know about to avoid duplicates
-    saved_message_ids = {m.id for m in past_messages}
-    
-    # 2. Add User Message
-    user_msg_id = str(uuid.uuid4())
-    user_msg = HumanMessage(content=user_input, id=user_msg_id)
-    
-    # Append to storage immediately
-    append_to_chat(session_id, user_msg)
-    saved_message_ids.add(user_msg_id)
-    
-    # Add to in-memory state for the graph
-    past_messages.append(user_msg)
-    state = {"messages": past_messages}
+async def chat_endpoint(session_id: str, payload: ChatRequest):
+    user_input = payload.message
 
-    # 3. Generator Function (The Logic Stream)
+    past_messages = load_chat(session_id, debug=False)
+    processed_ids = {m.id for m in past_messages if hasattr(m, "id")}
+
+    user_msg = HumanMessage(
+        content=user_input,
+        id=str(uuid.uuid4())
+    )
+
+    if user_msg.id not in processed_ids:
+        append_to_chat(session_id, user_msg, debug=False)
+        append_to_chat(session_id, user_msg, debug=True)
+        processed_ids.add(user_msg.id)
+
+    state = {
+        "chat_history": past_messages,
+        "messages": [user_msg],
+    }
+
     async def event_generator():
-        # Yield the user message first so frontend sees it was accepted
-        yield json.dumps({"type": "human", "content": user_input}) + "\n"
+        yield json.dumps({
+            "type": "human",
+            "content": user_input,
+        }) + "\n"
 
-        # Stream the graph execution
-        current_state = state
-        for event in agent_app.stream(current_state, stream_mode="values"):
-            
-            if "messages" in event:
-                for msg in event["messages"]:
-                    # We only care about NEW messages we haven't processed yet
-                    if hasattr(msg, "id") and msg.id and msg.id not in saved_message_ids:
-                        
-                        # A. Save to Disk (Backend Persistence)
-                        append_to_chat(session_id, msg)
-                        saved_message_ids.add(msg.id)
-                        
-                        # B. Serialize for Frontend
-                        # We use your helper to turn the object into a dict
-                        msg_data = serialize_message(msg)
-                        
-                        # Yield line-delimited JSON
+        for event in app.stream(state, stream_mode="values"):
+            if "messages" not in event:
+                continue
+
+            for msg in event["messages"]:
+                if not hasattr(msg, "id") or msg.id in processed_ids:
+                    continue
+
+                append_to_chat(session_id, msg, debug=False)
+                append_to_chat(session_id, msg, debug=True)
+
+                if isinstance(msg, (HumanMessage, AIMessage)):
+                    msg_data = serialize_message(msg)
+                    if msg_data:
                         yield json.dumps(msg_data) + "\n"
-                        
-            # Update state for next iteration
-            current_state = event
 
-    # Return a Streaming Response
-    return StreamingResponse(event_generator(), media_type="application/x-ndjson")
+                processed_ids.add(msg.id)
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="application/x-ndjson",
+    )

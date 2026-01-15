@@ -9,57 +9,49 @@ from ai.agent.graph_builder import app
 from ai.utils.storage import init_ai_storage, append_to_chat, load_chat
 
 load_dotenv(".env", override=True)
-
-# 1. Setup & Session Selection
+# 1. Setup
 init_ai_storage()
-session_id = 1
-past_messages = load_chat(session_id)
+session_id = "session_1"
+# Always load from the normal log (debug=False)
+past_messages = load_chat(session_id, debug=False)
 
-# 2. Tracking for deduplication
-printed_message_ids = set()
-saved_message_ids = set() # NEW: Track what is already on disk
+# 2. Single Tracking Set
+processed_ids = {m.id for m in past_messages if hasattr(m, "id")}
 
-for m in past_messages:
-    printed_message_ids.add(m.id)
-    saved_message_ids.add(m.id)
-
-state = {"messages": past_messages}
-spinner = itertools.cycle(['-', '/', '|', '\\'])
-
-print(f"--- Session '{session_id}' active ({len(past_messages)} messages loaded) ---")
+state = {"chat_history": past_messages , "messages": []}
+print(f"--- Session '{session_id}' active ---")
 
 while True:
     user_input = input("\nYou: ")
-    if user_input.lower() == "q":
-        break
+    if user_input.lower() == "q": break
 
-    # Add user message
     user_msg = HumanMessage(content=user_input, id=str(uuid.uuid4()))
     state["messages"].append(user_msg)
-    printed_message_ids.add(user_msg.id)
     
-    # SAVE POINT 1: Append User Message
-    if user_msg.id not in saved_message_ids:
-        append_to_chat(session_id, user_msg)
-        saved_message_ids.add(user_msg.id)
+    # Process User Message immediately
+    if user_msg.id not in processed_ids:
+        append_to_chat(session_id, user_msg, debug=False) # Normal log
+        append_to_chat(session_id, user_msg, debug=True)  # Debug log
+        processed_ids.add(user_msg.id)
 
-    print("AI is thinking...", end=" ", flush=True)
-    
     final_state = state
     for event in app.stream(state, stream_mode="values"):
-        sys.stdout.write('\b' + next(spinner))
-        sys.stdout.flush()
-        
         final_state = event
-        print_stream_refined(event,printed_message_ids)
-
-        # SAVE POINT 2: Append New AI/Tool Messages
+        
         if "messages" in event:
-            # Iterate through the returned messages (LangGraph often returns the full list or chunks)
-            # We filter for ones we haven't saved yet.
             for msg in event["messages"]:
-                if hasattr(msg, "id") and msg.id and msg.id not in saved_message_ids:
-                    append_to_chat(session_id, msg)
-                    saved_message_ids.add(msg.id)
+                if msg.id not in processed_ids:
+                    # A. LOGGING (Save everything: AI, Tool, System)
+                    append_to_chat(session_id, msg, debug=False)
+                    append_to_chat(session_id, msg, debug=True)
+                    
+                    # B. UI DISPLAY (Filter for AI and Human only)
+                    if isinstance(msg, (HumanMessage, AIMessage)):
+                        # Pass a dummy set or logic to print_stream_refined 
+                        # so it only sees this specific new message
+                        print_stream_refined(event, processed_ids)
+                    
+                    # C. MARK AS PROCESSED
+                    processed_ids.add(msg.id)
 
     state = final_state

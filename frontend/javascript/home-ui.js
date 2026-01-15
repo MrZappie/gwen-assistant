@@ -1,6 +1,6 @@
 // home-ui.js
 
-import { fetchFolder, fetchFile } from "./home-file.js";
+import { fetchFolder, fetchFile , saveFile } from "./home-file.js";
 
 const folderCache = new Map();
 const treeContainer = document.getElementById("folder-tree");
@@ -279,3 +279,34 @@ if (rightResizer && rightPanel) {
 } else {
     console.error("Right panel or resizer not found. Check HTML IDs.");
 }
+
+async function handleSave() {
+    if (!activeFilePath) return;
+
+    const content = fileEditor.value;
+    
+    try {
+        // Show some loading state if you want
+        console.log("Saving...", activeFilePath);
+        
+        await saveFile(activeFilePath, content);
+        
+        // Update local cache so switching tabs doesn't overwrite with old data
+        if (openFiles.has(activeFilePath)) {
+            openFiles.get(activeFilePath).content = content;
+        }
+        
+        alert("File saved successfully!"); 
+    } catch (err) {
+        console.error("Save failed:", err);
+        alert("Error saving file.");
+    }
+}
+
+// 4. Add Keyboard Shortcut (Ctrl + S)
+document.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault(); // Stop browser from trying to save the HTML page
+        handleSave();
+    }
+});

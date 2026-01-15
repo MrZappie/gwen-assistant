@@ -42,9 +42,11 @@ body {
 /* Dashboard Layout */
 .dashboard {
     display: flex;
-    height: calc(100vh - 45px); /* Adjusted for top-nav height */
+    height: calc(100vh - 45px);
+    /* Adjusted for top-nav height */
     background-color: #0d1117;
-    overflow: hidden; /* Prevent dashboard from scrolling, scroll sidebar/editor instead */
+    overflow: hidden;
+    /* Prevent dashboard from scrolling, scroll sidebar/editor instead */
 }
 
 /* Sidebar Styling */
@@ -58,7 +60,9 @@ body {
     overflow-y: auto;
     /* Enable vertical scrolling */
     overflow-x: hidden;
-}.sidebar {
+}
+
+.sidebar {
     background-color: #0B0B1D;
     width: 280px;
     min-width: 150px;
@@ -95,6 +99,7 @@ body {
     margin-bottom: 30px;
     letter-spacing: -0.5px;
 }
+
 .resizer {
     width: 4px;
     cursor: col-resize;
@@ -103,8 +108,10 @@ body {
     z-index: 10;
 }
 
-.resizer:hover, .resizer:active {
-    background-color: #58a6ff; /* Glow blue when dragging */
+.resizer:hover,
+.resizer:active {
+    background-color: #58a6ff;
+    /* Glow blue when dragging */
 }
 
 /* Ensure the sidebar has a min/max width so it doesn't break the UI */
@@ -143,13 +150,6 @@ body {
     margin: 0;
 }
 
-.tree-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 3px 0;
-    cursor: pointer;
-}
 
 .tree-item i {
     font-size: 14px;
@@ -202,15 +202,20 @@ body {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    background-color: #1e1e1e; /* Standard editor dark grey */
+    background-color: #1e1e1e;
+    /* Standard editor dark grey */
     height: 100%;
     overflow: hidden;
 }
 
+
 .right-panel {
     width: 250px;
+    /* Starting width */
     background-color: #040914;
     border-left: 1px solid #30363d;
+    flex-shrink: 0;
+    /* IMPORTANT: Prevents it from squishing automatically */
 }
 
 /* Dropdown Menu Styles */
@@ -234,6 +239,7 @@ body {
 .dropdown-content.show {
     display: block;
 }
+
 .dropdown-content li {
     padding: 10px 15px;
     font-size: 13px;
@@ -258,6 +264,7 @@ body {
     font-family: 'Segoe UI', sans-serif;
     min-height: 35px;
 }
+
 #file-content-display {
     margin: 0;
     padding: 20px;
@@ -265,7 +272,8 @@ body {
     flex-grow: 1;
     font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
     line-height: 1.5;
-    white-space: pre-wrap; /* Maintains formatting but wraps long lines */
+    white-space: pre-wrap;
+    /* Maintains formatting but wraps long lines */
 }
 
 /* Optional highlight for the selected file in sidebar */
@@ -291,21 +299,29 @@ body {
     color: #d4d4d4;
     font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
     font-size: 14px;
-    resize: none; /* Disables the bottom-right drag handle */
+    resize: none;
+    /* Disables the bottom-right drag handle */
     line-height: 1.6;
-    tab-size: 4; /* Standard code indentation */
-    white-space: pre; /* Keeps code formatting exactly as fetched */
+    tab-size: 4;
+    /* Standard code indentation */
+    white-space: pre;
+    /* Keeps code formatting exactly as fetched */
     overflow: auto;
 }
 
 #tabs-container {
-    display: flex; /* Aligns children (tabs) in a row */
-    flex-direction: row; /* Ensures horizontal flow */
-    background-color: #0d1117; /* Match your background */
+    display: flex;
+    /* Aligns children (tabs) in a row */
+    flex-direction: row;
+    /* Ensures horizontal flow */
+    background-color: #0d1117;
+    /* Match your background */
     border-bottom: 1px solid #30363d;
-    overflow-x: auto; /* Allows scrolling if many tabs are open */
+    overflow-x: auto;
+    /* Allows scrolling if many tabs are open */
     overflow-y: hidden;
-    height: 35px; /* Fixed height for the tab bar */
+    height: 35px;
+    /* Fixed height for the tab bar */
 }
 
 .tab {
@@ -318,41 +334,51 @@ body {
     cursor: pointer;
     font-size: 13px;
     color: #c9d1d9;
-    white-space: nowrap; /* Prevents text from wrapping within the tab */
-    min-width: fit-content; /* Adjusts tab width to the file name */
+    white-space: nowrap;
+    /* Prevents text from wrapping within the tab */
+    min-width: fit-content;
+    /* Adjusts tab width to the file name */
 }
 
 .tab.active {
-    background-color: #1e1e1e; /* Highlight for active file */
+    background-color: #1e1e1e;
+    /* Highlight for active file */
     color: #ffffff;
 }
 
 .tab i {
-    margin-left: 8px; /* Space for the 'x' button */
+    margin-left: 8px;
+    /* Space for the 'x' button */
     font-size: 14px;
 }
 
 #file-editor::-webkit-scrollbar {
-    width: 8px; /* Slightly wider for ease of use in the editor */
-    height: 8px; /* For horizontal scroll if code is wide */
+    width: 8px;
+    /* Slightly wider for ease of use in the editor */
+    height: 8px;
+    /* For horizontal scroll if code is wide */
 }
 
 #file-editor::-webkit-scrollbar-track {
-    background: #1e1e1e; /* Matches editor background */
+    background: #1e1e1e;
+    /* Matches editor background */
 }
 
 #file-editor::-webkit-scrollbar-thumb {
-    background: #30363d; /* Same color as sidebar */
+    background: #30363d;
+    /* Same color as sidebar */
     border-radius: 10px;
 }
 
 #file-editor::-webkit-scrollbar-thumb:hover {
-    background: #484f58; /* Same hover color as sidebar */
+    background: #484f58;
+    /* Same hover color as sidebar */
 }
 
 /* Targets the horizontal tab container scrollbar */
 #tabs-container::-webkit-scrollbar {
-    height: 4px; /* Thin scrollbar for the tab row */
+    height: 4px;
+    /* Thin scrollbar for the tab row */
 }
 
 #tabs-container::-webkit-scrollbar-track {
@@ -366,6 +392,53 @@ body {
 
 #tabs-container::-webkit-scrollbar-thumb:hover {
     background: #484f58;
+}
+
+/* Container for the "Select a File" screen */
+/* --- Empty State Container --- */
+.empty-state {
+    display: none;
+    /* Toggled by JS */
+    flex-grow: 1;
+    height: 100%;
+    background-color: #1e1e1e;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+
+    /* PREVENTS UGLY BLUE TEXT SELECTION */
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Background Logo */
+.bg-icon {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    color: #252526;
+    opacity: 0.5;
+    transform: rotate(-10deg);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.bg-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* The "Select a File" Text */
+.empty-message {
+    z-index: 10;
+    color: #3b3b3b;
+    /* Subtle dark grey like VS Code */
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: -0.5px;
+    text-transform: lowercase;
+    font-variant: small-caps;
 }
 
 .show {

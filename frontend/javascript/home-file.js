@@ -8,3 +8,4 @@ export async function fetchFile(path) {
     const res = await fetch(`/api/get_file_content?path=${encodeURIComponent(path)}`);
     return res.json();
 }
+

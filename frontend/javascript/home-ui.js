@@ -8,6 +8,7 @@ const treeContainer = document.getElementById("folder-tree");
 // References to the editor elements in the center area
 const fileEditor = document.getElementById("file-editor");
 const tabsContainer = document.getElementById("tabs-container");
+const emptyState = document.getElementById("empty-state");
 
 // State to track open files and active path
 const openFiles = new Map();
@@ -119,29 +120,47 @@ async function openFile(item) {
 }
 
 function switchToFile(path) {
-    // Save current editor content back to the Map before switching
+    // 1. Save content of the PREVIOUS active file before switching
     if (activeFilePath && openFiles.has(activeFilePath)) {
         openFiles.get(activeFilePath).content = fileEditor.value;
     }
 
     activeFilePath = path;
-    const fileData = openFiles.get(path);
-    fileEditor.value = fileData.content;
 
-    // Highlight the file in the sidebar tree
-    document.querySelectorAll('.tree-item').forEach(el => el.classList.remove('selected-file'));
-    // (Logic to find and highlight sidebar item could be added here)
+    // 2. TOGGLE VIEW: Show Editor OR Show "Select a File"
+    if (path) {
+        // CASE A: We have a valid file path
+        const fileData = openFiles.get(path);
+        fileEditor.value = fileData ? fileData.content : "";
+
+        fileEditor.style.display = "block";       // Show Editor
+        if (emptyState) emptyState.style.display = "none"; // Hide Empty Screen
+    } else {
+        // CASE B: Path is null (No file selected)
+        fileEditor.style.display = "none";        // Hide Editor
+        if (emptyState) emptyState.style.display = "flex"; // Show Empty Screen
+    }
 
     renderTabs();
 }
 
 function closeFile(path) {
+    // 1. Remove file from memory
     openFiles.delete(path);
-    if (activeFilePath === path) {
-        activeFilePath = Array.from(openFiles.keys())[0] || null;
-        fileEditor.value = activeFilePath ? openFiles.get(activeFilePath).content : "";
+
+    // 2. CHECK: If NO files are left, show the empty screen
+    if (openFiles.size === 0) {
+        switchToFile(null); // This triggers the empty state
     }
-    renderTabs();
+    // 3. If we closed the active file, switch to another one
+    else if (activeFilePath === path) {
+        const remainingFiles = Array.from(openFiles.keys());
+        const lastFile = remainingFiles[remainingFiles.length - 1];
+        switchToFile(lastFile);
+    }
+    else {
+        renderTabs();
+    }
 }
 
 // Dropdown Menu Logic
@@ -167,7 +186,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         const res = await fetch("/api/project-status"); //
         const data = await res.json();
-
+        switchToFile(null);
         if (!data.project_directory) {
             window.location.replace("index.html");
         } else {
@@ -226,3 +245,37 @@ resizer.addEventListener("mousedown", (e) => {
 });
 
 window.toggleDropdown = toggleDropdown;
+
+// --- Right Panel Resizer Logic ---
+const rightResizer = document.getElementById("right-resizer");
+const rightPanel = document.getElementById("right-panel");
+
+if (rightResizer && rightPanel) {
+    rightResizer.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        document.body.style.cursor = "col-resize";
+        document.body.style.userSelect = "none"; // Stop text highlighting
+
+        const doDragRight = (e) => {
+            // Calculate width: Window Total Width - Mouse Position = Panel Width
+            const newWidth = window.innerWidth - e.clientX;
+
+            // Optional: Limit width between 150px and 600px
+            if (newWidth > 150 && newWidth < 600) {
+                rightPanel.style.width = `${newWidth}px`;
+            }
+        };
+
+        const stopDragRight = () => {
+            document.body.style.cursor = "default";
+            document.body.style.userSelect = "auto";
+            window.removeEventListener("mousemove", doDragRight);
+            window.removeEventListener("mouseup", stopDragRight);
+        };
+
+        window.addEventListener("mousemove", doDragRight);
+        window.addEventListener("mouseup", stopDragRight);
+    });
+} else {
+    console.error("Right panel or resizer not found. Check HTML IDs.");
+}

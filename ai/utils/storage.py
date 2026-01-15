@@ -4,12 +4,11 @@ import uuid
 import ctypes
 import platform
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, ToolMessage
-# from config.preferences import get_value # Assuming this exists from your previous code
+from config.preferences import get_value # Assuming this exists from your previous code
 
-# PROJECT_DIR = get_value("PROJECT_DIR")
+PROJECT_DIR = get_value("PROJECT_DIR")
 # For testing purposes, I'll hardcode or use relative if config is missing
-# AI_DIR = os.path.join(PROJECT_DIR, ".ai") 
-AI_DIR = os.path.join(os.getcwd(), ".ai") # Adjusted for standalone testing
+AI_DIR = os.path.join(PROJECT_DIR, ".ai") 
 CHAT_DIR = os.path.join(AI_DIR, "chat")
 
 def init_ai_storage():

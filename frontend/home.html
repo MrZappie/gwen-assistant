@@ -55,25 +55,32 @@
         </section>
         <div id="right-resizer" class="resizer"></div>
         <aside class="right-panel" id="right-panel">
-
-            <div class="chat-header-minimal">
-                <select id="chat-history-dropdown" class="history-dropdown">
-                    <option value="current" selected>Current Session</option>
-                </select>
-                <button id="new-chat-btn" class="icon-btn" title="Start New Chat">
-                    <i class="bi bi-plus-lg"></i>
+            <div class="chat-tabs-header">
+                <button class="chat-tab-btn active" id="tab-chat-btn" title="Current Chat">
+                    <i class="bi bi-chat-dots-fill"></i>
+                </button>
+                <button class="chat-tab-btn" id="tab-history-btn" title="Chat History">
+                    <i class="bi bi-clock-history"></i>
                 </button>
             </div>
 
-            <div class="chat-container">
+            <div id="view-chat" class="panel-view active">
                 <div id="chat-messages" class="chat-messages">
+                    <div class="empty-chat-placeholder">
+                        <i class="bi bi-chat-square-text"></i>
+                        <p>Start a new conversation...</p>
+                    </div>
                 </div>
-
                 <div class="chat-input-area">
                     <textarea id="chat-input" placeholder="Type a message..." rows="1"></textarea>
                     <button id="chat-send-btn" class="send-btn">
-                        <i class="bi bi-arrow-up-short"></i>
+                        <i class="bi bi-arrow-up-circle-fill"></i>
                     </button>
+                </div>
+            </div>
+
+            <div id="view-history" class="panel-view">
+                <div id="history-list" class="history-list">
                 </div>
             </div>
         </aside>

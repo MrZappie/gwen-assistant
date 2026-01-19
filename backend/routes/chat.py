@@ -1,6 +1,7 @@
 import json
 import os
 import uuid
+import asyncio
 from dotenv import load_dotenv
 
 from fastapi import APIRouter, HTTPException
@@ -23,6 +24,9 @@ load_dotenv(override=True)
 router = APIRouter()
 init_ai_storage()
 
+# -------------------------------------------------
+# GET CHAT HISTORY
+# -------------------------------------------------
 @router.get("/chat/{session_id}")
 async def get_chat_history(session_id: str):
     """
@@ -35,15 +39,19 @@ async def get_chat_history(session_id: str):
         return []
 
     try:
-        with open(file_path, "r") as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             return json.load(f)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
 
+
+# -------------------------------------------------
+# CHAT STREAM ENDPOINT
+# -------------------------------------------------
 @router.post("/chat/{session_id}")
 async def chat_endpoint(session_id: str, payload: ChatRequest):
     user_input = payload.message
+    print("POST /api/chat HIT:", session_id, user_input)
 
     past_messages = load_chat(session_id, debug=False)
     processed_ids = {m.id for m in past_messages if hasattr(m, "id")}
@@ -64,30 +72,80 @@ async def chat_endpoint(session_id: str, payload: ChatRequest):
     }
 
     async def event_generator():
+        # Echo user message first
         yield json.dumps({
             "type": "human",
             "content": user_input,
         }) + "\n"
 
-        for event in app.stream(state, stream_mode="values"):
-            if "messages" not in event:
-                continue
+        loop = asyncio.get_running_loop()
 
-            for msg in event["messages"]:
-                if not hasattr(msg, "id") or msg.id in processed_ids:
+        def run_graph():
+            return list(app.stream(state, stream_mode="values"))
+
+        try:
+            events = await loop.run_in_executor(None, run_graph)
+
+            for event in events:
+                if "messages" not in event:
                     continue
 
-                append_to_chat(session_id, msg, debug=False)
-                append_to_chat(session_id, msg, debug=True)
+                for msg in event["messages"]:
+                    if not hasattr(msg, "id") or msg.id in processed_ids:
+                        continue
 
-                if isinstance(msg, (HumanMessage, AIMessage)):
+                    append_to_chat(session_id, msg, debug=False)
+                    append_to_chat(session_id, msg, debug=True)
+
                     msg_data = serialize_message(msg)
                     if msg_data:
                         yield json.dumps(msg_data) + "\n"
 
-                processed_ids.add(msg.id)
+                    processed_ids.add(msg.id)
+
+        except Exception as e:
+            print("STREAM ERROR:", e)
+            yield json.dumps({
+                "type": "system",
+                "content": "Internal error during AI processing."
+            }) + "\n"
 
     return StreamingResponse(
         event_generator(),
-        media_type="application/x-ndjson",
+        media_type="application/x-ndjson"
     )
+
+
+# -------------------------------------------------
+# LIST ALL SESSIONS
+# -------------------------------------------------
+@router.get("/sessions")
+async def get_all_sessions():
+    """
+    Returns a list of all available chat sessions on the server.
+    """
+    try:
+        from ai.utils.storage import list_sessions
+        return list_sessions()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    
+    import shutil
+
+@router.delete("/chat/{session_id}")
+async def delete_chat_session(session_id: str):
+    """
+    Deletes a chat session and its stored history.
+    """
+    session_dir = os.path.join(CHAT_DIR, session_id)
+
+    if not os.path.exists(session_dir):
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    try:
+        shutil.rmtree(session_dir)
+        return {"success": True}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+

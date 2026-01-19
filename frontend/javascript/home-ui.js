@@ -1,6 +1,6 @@
 // home-ui.js
 
-import { fetchFolder, fetchFile , saveFile } from "./home-file.js";
+import { fetchFolder, fetchFile, saveFile } from "./home-file.js";
 
 const folderCache = new Map();
 const treeContainer = document.getElementById("folder-tree");
@@ -284,19 +284,19 @@ async function handleSave() {
     if (!activeFilePath) return;
 
     const content = fileEditor.value;
-    
+
     try {
         // Show some loading state if you want
         console.log("Saving...", activeFilePath);
-        
+
         await saveFile(activeFilePath, content);
-        
+
         // Update local cache so switching tabs doesn't overwrite with old data
         if (openFiles.has(activeFilePath)) {
             openFiles.get(activeFilePath).content = content;
         }
-        
-        alert("File saved successfully!"); 
+
+        alert("File saved successfully!");
     } catch (err) {
         console.error("Save failed:", err);
         alert("Error saving file.");
@@ -315,103 +315,221 @@ document.addEventListener("keydown", (e) => {
 
 // --- Advanced Chat Logic with History ---
 
+// --- CHAT SYSTEM LOGIC ---
+
 const chatInput = document.getElementById("chat-input");
 const chatSendBtn = document.getElementById("chat-send-btn");
 const chatMessages = document.getElementById("chat-messages");
-const newChatBtn = document.getElementById("new-chat-btn");
-const historyDropdown = document.getElementById("chat-history-dropdown");
+const historyList = document.getElementById("history-list");
+
+// Tab Buttons
+const tabChatBtn = document.getElementById("tab-chat-btn");
+const tabHistoryBtn = document.getElementById("tab-history-btn");
+const viewChat = document.getElementById("view-chat");
+const viewHistory = document.getElementById("view-history");
 
 // State
-let savedChats = [];     // Stores old chats: [{ title: "Hi...", messages: [...] }]
-let currentSession = []; // Stores currently visible messages
+let currentSessionId = null; // If null, we create a new one on send
+const STORAGE_KEY = "gwen_chat_sessions"; // LocalStorage key
 
-// 1. Function to Render a Single Message to DOM
-function renderMessage(text, type) {
+// --- 1. Tab Switching ---
+function switchTab(tabName) {
+    if (tabName === 'chat') {
+        tabChatBtn.classList.add('active');
+        tabHistoryBtn.classList.remove('active');
+        viewChat.classList.add('active');
+        viewHistory.classList.remove('active');
+        scrollToBottom();
+    } else {
+        tabHistoryBtn.classList.add('active');
+        tabChatBtn.classList.remove('active');
+        viewHistory.classList.add('active');
+        viewChat.classList.remove('active');
+        renderHistoryView(); // Refresh list when opening tab
+    }
+}
+
+tabChatBtn.addEventListener("click", () => switchTab('chat'));
+tabHistoryBtn.addEventListener("click", () => switchTab('history'));
+
+// --- 2. Message Rendering ---
+function renderMessage(content, type) {
+    // remove placeholder if exists
+    const placeholder = document.querySelector(".empty-chat-placeholder");
+    if (placeholder) placeholder.remove();
+
     const msgDiv = document.createElement("div");
     msgDiv.className = `message ${type}`;
-    msgDiv.textContent = text;
+    msgDiv.textContent = content;
     chatMessages.appendChild(msgDiv);
+    scrollToBottom();
+}
+
+function scrollToBottom() {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-// 2. Send Message Logic
-function sendMessage() {
+// --- 3. History Management (Local Storage) ---
+
+function getLocalSessions() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+}
+
+function saveSessionToLocal(id, firstMessage) {
+    let sessions = getLocalSessions();
+    const now = new Date();
+
+    // Check if exists
+    const existingIndex = sessions.findIndex(s => s.id === id);
+
+    if (existingIndex > -1) {
+        // Update existing
+        sessions[existingIndex].lastMessage = firstMessage;
+        sessions[existingIndex].timestamp = now.getTime();
+        // Move to top
+        const item = sessions.splice(existingIndex, 1)[0];
+        sessions.unshift(item);
+    } else {
+        // Create new
+        const newSession = {
+            id: id,
+            preview: firstMessage.substring(0, 30) + (firstMessage.length > 30 ? "..." : ""),
+            lastMessage: firstMessage,
+            timestamp: now.getTime()
+        };
+        sessions.unshift(newSession);
+    }
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
+}
+
+function renderHistoryView() {
+    historyList.innerHTML = "";
+    const sessions = getLocalSessions();
+
+    if (sessions.length === 0) {
+        historyList.innerHTML = `<div style="text-align:center; color:#666; padding:20px;">No history found.</div>`;
+        return;
+    }
+
+    sessions.forEach(session => {
+        const dateStr = new Date(session.timestamp).toLocaleDateString();
+
+        const card = document.createElement("div");
+        card.className = `history-card ${currentSessionId === session.id ? 'active-session' : ''}`;
+
+        card.innerHTML = `
+         <div class="h-card-header">
+        <span>Chat</span>
+        <div class="h-card-actions">
+            <span class="h-card-date">${dateStr}</span>
+            <i class="bi bi-trash delete-chat-btn"></i>
+        </div>
+    </div>
+    <div class="h-card-preview">${session.lastMessage}</div>
+`;
+        const deleteBtn = card.querySelector(".delete-chat-btn");
+
+        deleteBtn.addEventListener("click", (e) => {
+            e.stopPropagation(); // prevent opening chat
+            deleteSession(session.id);
+        });
+
+        card.addEventListener("click", () => loadSession(session.id));
+        historyList.appendChild(card);
+    });
+}
+
+// --- 4. API & Interaction ---
+
+async function loadSession(sessionId) {
+    currentSessionId = sessionId;
+    switchTab('chat');
+    chatMessages.innerHTML = ""; // Clear current view
+
+    // Fetch from Backend
+    try {
+        const res = await fetch(`/api/chat/${sessionId}`); // Note: You need to ensure your FastAPI router prefix is handled
+        // If your router is just /chat/{id}, remove /api or configure main.py
+
+        const messages = await res.json();
+
+        if (Array.isArray(messages)) {
+            messages.forEach(msg => {
+                // Adapt based on how your backend stores 'type' or 'role'
+                // Based on your python: human/ai
+                const type = (msg.type === "human" || msg.type === "user") ? "user" : "system";
+                renderMessage(msg.content, type);
+            });
+        }
+    } catch (err) {
+        console.error("Failed to load chat", err);
+        renderMessage("Error loading history.", "system");
+    }
+}
+
+async function sendMessage() {
     const text = chatInput.value.trim();
     if (!text) return;
 
-    // Save to memory
-    currentSession.push({ text: text, type: "user" });
-    
-    // Render to screen
-    renderMessage(text, "user");
-    
     chatInput.value = "";
 
-    // Simulate System Reply (Optional)
-    setTimeout(() => {
-        const reply = "Echo: " + text;
-        currentSession.push({ text: reply, type: "system" });
-        renderMessage(reply, "system");
-    }, 500);
-}
+    // 1. DEFAULT BEHAVIOR: If no session is loaded, make a new one
+    if (!currentSessionId) {
+        currentSessionId = crypto.randomUUID();
+        console.log("Starting new session:", currentSessionId);
+    }
 
-// 3. NEW CHAT Logic
-newChatBtn.addEventListener("click", () => {
-    // Only save if the current session actually has messages
-    if (currentSession.length > 0) {
-        
-        // Generate a title (first 15 chars of first message)
-        const firstMsg = currentSession[0].text;
-        const title = firstMsg.length > 15 ? firstMsg.substring(0, 15) + "..." : firstMsg;
-        
-        // Save to History Array
-        savedChats.push({
-            id: Date.now(),
-            title: title,
-            messages: [...currentSession] // Clone array
+    // 2. Render User Message immediately
+    renderMessage(text, "user");
+
+    // 3. Send to Backend
+    try {
+        const response = await fetch(`/api/chat/${currentSessionId}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: text })
         });
 
-        // Add to Dropdown
-        const option = document.createElement("option");
-        option.value = savedChats.length - 1; // Index in savedChats array
-        option.textContent = title;
-        historyDropdown.appendChild(option);
+        if (!response.ok) throw new Error("Failed to reach backend");
+
+        // 4. Update Local History (Sidebar preview)
+        // We do this after the fetch starts so it only appears if the message "went through"
+        saveSessionToLocal(currentSessionId, text);
+
+        // 5. Handle Streaming Response
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split("\n");
+
+            for (const line of lines) {
+                if (!line.trim()) continue;
+                try {
+                    const data = JSON.parse(line);
+                    if (data.type === "ai" || data.type === "AIMessage") {
+                        renderMessage(data.content, "system");
+                        // Optional: Update preview to show the AI's last words
+                        saveSessionToLocal(currentSessionId, "AI: " + data.content);
+                    }
+                } catch (e) {
+                    // Ignore partial JSON chunks during streaming
+                }
+            }
+        }
+    } catch (err) {
+        console.error("Chat Error:", err);
+        renderMessage("Connection error. Message not saved.", "system");
     }
+}
 
-    // Reset UI for fresh start
-    currentSession = [];
-    chatMessages.innerHTML = "";
-    historyDropdown.value = "current"; // Reset dropdown to 'Current'
-});
-
-// 4. LOAD OLD CHAT Logic (Dropdown Change)
-historyDropdown.addEventListener("change", (e) => {
-    const value = e.target.value;
-
-    // Clear current view
-    chatMessages.innerHTML = "";
-
-    if (value === "current") {
-        // If user switches back to "Current Session" (if we want to support that logic)
-        // For now, "New Chat" clears current, so 'current' is just empty.
-        currentSession.forEach(msg => renderMessage(msg.text, msg.type));
-    } else {
-        // Load data from savedChats
-        const chatIndex = parseInt(value);
-        const oldChat = savedChats[chatIndex];
-        
-        // Render old messages
-        oldChat.messages.forEach(msg => renderMessage(msg.text, msg.type));
-        
-        // IMPORTANT: We are viewing history. 
-        // Any new messages typed here will technically be part of this 'current view'
-        // unless you want to lock old chats. 
-        // For simplicity, we copy it back to currentSession to allow continuing the chat.
-        currentSession = [...oldChat.messages];
-    }
-});
-
-// Event Listeners for Sending
+// Event Listeners
 chatSendBtn.addEventListener("click", sendMessage);
 chatInput.addEventListener("keypress", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -419,3 +537,32 @@ chatInput.addEventListener("keypress", (e) => {
         sendMessage();
     }
 });
+
+async function deleteSession(sessionId) {
+    if (!confirm("Delete this chat permanently?")) return;
+
+    try {
+        const res = await fetch(`/api/chat/${sessionId}`, {
+            method: "DELETE"
+        });
+
+        if (!res.ok) throw new Error("Delete failed");
+
+        // Remove from localStorage
+        let sessions = getLocalSessions().filter(s => s.id !== sessionId);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
+
+        // Reset UI if deleting active chat
+        if (currentSessionId === sessionId) {
+            currentSessionId = null;
+            chatMessages.innerHTML = "";
+            renderMessage("Chat deleted.", "system");
+        }
+
+        renderHistoryView();
+
+    } catch (err) {
+        console.error("Delete error:", err);
+        alert("Failed to delete chat.");
+    }
+}

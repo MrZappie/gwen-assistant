@@ -448,23 +448,7 @@ body {
     height: 40px;
 }
 
-/* The Dropdown (Top Left) */
-.history-dropdown {
-    background-color: #1e1e1e;
-    color: #ccc;
-    border: 1px solid #333;
-    border-radius: 4px;
-    padding: 2px 5px;
-    font-size: 0.85rem;
-    outline: none;
-    max-width: 150px;
-    /* Keep it compact */
-    cursor: pointer;
-}
 
-.history-dropdown:hover {
-    border-color: #555;
-}
 
 /* New Chat Button (+) */
 .icon-btn {
@@ -550,6 +534,150 @@ body {
     cursor: pointer;
     font-size: 1.2rem;
 }
+
+
+/* --- Right Panel Tabs --- */
+.chat-tabs-header {
+    display: flex;
+    background-color: #252526;
+    border-bottom: 1px solid #333;
+    height: 45px;
+}
+
+.chat-tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #8b949e;
+    cursor: pointer;
+    font-size: 1.1rem;
+    position: relative;
+    transition: all 0.2s;
+}
+
+.chat-tab-btn:hover {
+    background-color: #2d2d2d;
+    color: #e6e6e6;
+}
+
+.chat-tab-btn.active {
+    color: #58a6ff; /* Blue accent */
+    background-color: #1e1e1e; /* Match panel bg */
+}
+
+/* Active tab indicator line */
+.chat-tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #58a6ff;
+}
+
+/* --- Panel Views --- */
+.panel-view {
+    display: none; /* Hidden by default */
+    flex-direction: column;
+    height: calc(100% - 45px); /* Subtract header height */
+    overflow: hidden;
+}
+
+.panel-view.active {
+    display: flex;
+}
+
+/* --- History List Styling --- */
+.history-list {
+    padding: 10px;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.history-card {
+    background-color: #252526;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: transform 0.1s, border-color 0.2s;
+}
+
+.history-card:hover {
+    border-color: #58a6ff;
+    background-color: #2d2d2d;
+}
+
+.history-card.active-session {
+    border-left: 3px solid #58a6ff;
+    background-color: #2a2d33;
+}
+
+.h-card-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #e6e6e6;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.h-card-date {
+    font-size: 0.75rem;
+    color: #8b949e;
+}
+
+.h-card-preview {
+    font-size: 0.8rem;
+    color: #8b949e;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --- Chat Adjustments --- */
+.empty-chat-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #444;
+}
+
+.empty-chat-placeholder i {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+.chat-input-area {
+    padding: 15px;
+    background-color: #1e1e1e;
+    border-top: 1px solid #333;
+}
+
+#chat-send-btn {
+    color: #58a6ff;
+    font-size: 1.5rem;
+    padding: 0 5px;
+}
+
+#chat-send-btn:hover {
+    color: #79c0ff;
+}
+
+.delete-chat-btn {
+    cursor: pointer;
+    color: #999;
+    margin-left: 8px;
+}
+
+.delete-chat-btn:hover {
+    color: #e74c3c;
+}
+
 
 .show {
     display: block;

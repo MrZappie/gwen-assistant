@@ -58,7 +58,7 @@ app.add_middleware(
 
 
 app.include_router(file.router)
-app.include_router(chat.router)
+app.include_router(chat.router,prefix="/api")
 
 @app.post("/shutdown")
 def shutdown():

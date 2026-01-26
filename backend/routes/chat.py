@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import uuid
 import asyncio
 from dotenv import load_dotenv
@@ -15,14 +16,30 @@ from ai.utils.storage import (
     init_ai_storage,
     append_to_chat,
     load_chat,
-    CHAT_DIR,
     serialize_message,
 )
+from config.preferences import get_value
 
 load_dotenv(override=True)
 
 router = APIRouter()
 init_ai_storage()
+
+def load_conversation_context(session_id: str, limit: int = 6):
+    """
+    Load only the last N human/AI messages for conversational continuity.
+    """
+    messages = load_chat(session_id, debug=False)
+    context = []
+
+    for m in reversed(messages):
+        if isinstance(m, (HumanMessage, AIMessage)):
+            context.append(m)
+        if len(context) >= limit:
+            break
+
+    return list(reversed(context))
+
 
 # -------------------------------------------------
 # GET CHAT HISTORY
@@ -32,6 +49,11 @@ async def get_chat_history(session_id: str):
     """
     Returns the clean (non-debug) chat log.
     """
+    
+    PROJECT_DIR = get_value("PROJECT_DIR")
+
+    AI_DIR = os.path.join(PROJECT_DIR, ".ai") 
+    CHAT_DIR = os.path.join(AI_DIR, "chat")
     dir_path = os.path.join(CHAT_DIR, session_id)
     file_path = os.path.join(dir_path, "log.json")
 
@@ -53,31 +75,36 @@ async def chat_endpoint(session_id: str, payload: ChatRequest):
     user_input = payload.message
     print("POST /api/chat HIT:", session_id, user_input)
 
+    # --- Load persisted chat (UI only) ---
     past_messages = load_chat(session_id, debug=False)
     processed_ids = {m.id for m in past_messages if hasattr(m, "id")}
 
+    # --- Create user message ---
     user_msg = HumanMessage(
         content=user_input,
         id=str(uuid.uuid4())
     )
 
+    # --- Persist user message immediately ---
     if user_msg.id not in processed_ids:
         append_to_chat(session_id, user_msg, debug=False)
         append_to_chat(session_id, user_msg, debug=True)
         processed_ids.add(user_msg.id)
 
+    # --- Build SHORT agent context ---
+    conversation_context = load_conversation_context(session_id, limit=6)
+
+    # --- Initialize agent state (NEW ARCHITECTURE) ---
     state = {
-        "chat_history": past_messages,
-        "messages": [user_msg],
+        "user_input": user_input,
+        "messages": conversation_context,
+        "plan": [],
+        "current_step": 0,
+        "observations": [],
+        "done": False,
     }
 
     async def event_generator():
-        # Echo user message first
-        yield json.dumps({
-            "type": "human",
-            "content": user_input,
-        }) + "\n"
-
         loop = asyncio.get_running_loop()
 
         def run_graph():
@@ -94,6 +121,7 @@ async def chat_endpoint(session_id: str, payload: ChatRequest):
                     if not hasattr(msg, "id") or msg.id in processed_ids:
                         continue
 
+                    # Persist AI output
                     append_to_chat(session_id, msg, debug=False)
                     append_to_chat(session_id, msg, debug=True)
 
@@ -138,6 +166,11 @@ async def delete_chat_session(session_id: str):
     """
     Deletes a chat session and its stored history.
     """
+    
+    PROJECT_DIR = get_value("PROJECT_DIR")
+
+    AI_DIR = os.path.join(PROJECT_DIR, ".ai") 
+    CHAT_DIR = os.path.join(AI_DIR, "chat")
     session_dir = os.path.join(CHAT_DIR, session_id)
 
     if not os.path.exists(session_dir):

@@ -1,93 +1,113 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-
-<head>
-    <link rel="stylesheet" href="stylesheet/home.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+  <head>
+    <link rel="stylesheet" href="stylesheet/home.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+    />
     <title>G.W.E.N - Project Explorer</title>
-</head>
+  </head>
 
-<body>
+  <body>
     <div class="cursor"></div>
 
     <nav class="top-nav">
-        <div class="dropdown">
-            <button class="nav-btn active" onclick="toggleDropdown('project-menu')">Project</button>
-            <ul id="project-menu" class="dropdown-content">
-                <li id="close-folder-btn">Close Folder</li> <!-- No id, no click handler -->
-                <li>Save All</li>
-            </ul>
-        </div>
+      <div class="dropdown">
+        <button class="nav-btn active" onclick="toggleDropdown('project-menu')">
+          Project
+        </button>
+        <ul id="project-menu" class="dropdown-content">
+          <li id="close-folder-btn">Close Folder</li>
+          <!-- No id, no click handler -->
+          <li>Save All</li>
+        </ul>
+      </div>
 
-        <div class="dropdown">
-            <button class="nav-btn" onclick="toggleDropdown('settings-menu')">Settings</button>
-            <ul id="settings-menu" class="dropdown-content">
-                <li>User Preferences</li>
-                <li>Color Theme</li>
-                <li>Keyboard Shortcuts</li>
-            </ul>
-        </div>
+      <div class="dropdown">
+        <button class="nav-btn" onclick="toggleDropdown('settings-menu')">
+          Settings
+        </button>
+        <ul id="settings-menu" class="dropdown-content">
+          <li>User Preferences</li>
+          <li>Color Theme</li>
+          <li>Keyboard Shortcuts</li>
+        </ul>
+      </div>
     </nav>
 
     <main class="dashboard">
-        <aside class="sidebar" id="sidebar">
-            <h3>Project Folders</h3>
-            <div id="folder-tree"></div>
-        </aside>
+      <aside class="sidebar" id="sidebar">
+        <h3>Project Folders</h3>
+        <div id="folder-tree"></div>
+      </aside>
 
-        <div id="resizer" class="resizer"></div>
+      <div id="resizer" class="resizer"></div>
 
-        <section class="editor-area">
-            <div id="tabs-container"></div>
+      <section class="editor-area">
+        <div id="tabs-container"></div>
 
-            <div id="empty-state" class="empty-state">
-                <div class="bg-icon">
-                    <svg viewBox="0 0 100 100" fill="currentColor">
-                        <path
-                            d="M22.8,4.7L3.4,21.9c-1.3,1.2-1.3,3.3,0.1,4.5l16.8,14.6l-8.6,6.3L22.6,56l39.1,28.9l32.2-15.6l0-42.6L61.7,11L22.8,4.7z M68,69.6l-20.9,9l-22.3-16.4l-7-5.1L68,26V69.6z M76.5,23v50.2l-6.3,3L33.7,52.3l29.4-23.3L76.5,23z" />
-                    </svg>
-                </div>
+        <div id="empty-state" class="empty-state">
+          <div class="bg-icon">
+            <svg viewBox="0 0 100 100" fill="currentColor">
+              <path
+                d="M22.8,4.7L3.4,21.9c-1.3,1.2-1.3,3.3,0.1,4.5l16.8,14.6l-8.6,6.3L22.6,56l39.1,28.9l32.2-15.6l0-42.6L61.7,11L22.8,4.7z M68,69.6l-20.9,9l-22.3-16.4l-7-5.1L68,26V69.6z M76.5,23v50.2l-6.3,3L33.7,52.3l29.4-23.3L76.5,23z"
+              />
+            </svg>
+          </div>
 
-                <h3 class="empty-message">Select a File</h3>
+          <h3 class="empty-message">Select a File</h3>
+        </div>
+
+        <textarea id="file-editor" spellcheck="false"></textarea>
+      </section>
+      <div id="right-resizer" class="resizer"></div>
+      <aside class="right-panel" id="right-panel">
+        <div class="chat-tabs-header">
+          <button
+            class="chat-tab-btn active"
+            id="tab-chat-btn"
+            title="Current Chat"
+          >
+            <i class="bi bi-chat-dots-fill"></i>
+          </button>
+          <button
+            class="chat-tab-btn"
+            id="tab-history-btn"
+            title="Chat History"
+          >
+            <i class="bi bi-clock-history"></i>
+          </button>
+          <button class="icon-btn" onclick="startNewChat()" title="New Chat">
+            <i class="bi bi-plus-lg"></i>
+          </button>
+        </div>
+
+        <div id="view-chat" class="panel-view active">
+          <div id="chat-messages" class="chat-messages">
+            <div class="empty-chat-placeholder">
+              <i class="bi bi-chat-square-text"></i>
+              <p>Start a new conversation...</p>
             </div>
+          </div>
+          <div class="chat-input-area">
+            <textarea
+              id="chat-input"
+              placeholder="Type a message..."
+              rows="1"
+            ></textarea>
+            <button id="chat-send-btn" class="send-btn">
+              <i class="bi bi-arrow-up-circle-fill"></i>
+            </button>
+          </div>
+        </div>
 
-            <textarea id="file-editor" spellcheck="false"></textarea>
-        </section>
-        <div id="right-resizer" class="resizer"></div>
-        <aside class="right-panel" id="right-panel">
-            <div class="chat-tabs-header">
-                <button class="chat-tab-btn active" id="tab-chat-btn" title="Current Chat">
-                    <i class="bi bi-chat-dots-fill"></i>
-                </button>
-                <button class="chat-tab-btn" id="tab-history-btn" title="Chat History">
-                    <i class="bi bi-clock-history"></i>
-                </button>
-            </div>
-
-            <div id="view-chat" class="panel-view active">
-                <div id="chat-messages" class="chat-messages">
-                    <div class="empty-chat-placeholder">
-                        <i class="bi bi-chat-square-text"></i>
-                        <p>Start a new conversation...</p>
-                    </div>
-                </div>
-                <div class="chat-input-area">
-                    <textarea id="chat-input" placeholder="Type a message..." rows="1"></textarea>
-                    <button id="chat-send-btn" class="send-btn">
-                        <i class="bi bi-arrow-up-circle-fill"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div id="view-history" class="panel-view">
-                <div id="history-list" class="history-list">
-                </div>
-            </div>
-        </aside>
+        <div id="view-history" class="panel-view">
+          <div id="history-list" class="history-list"></div>
+        </div>
+      </aside>
     </main>
 
     <script type="module" src="javascript/home-ui.js"></script>
-
-</body>
-
+  </body>
 </html>

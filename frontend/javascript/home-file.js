@@ -8,11 +8,10 @@ export async function fetchFile(path) {
     const res = await fetch(`/api/get_file_content?path=${encodeURIComponent(path)}`);
     return res.json();
 }
-// home-file.js
 
 export async function saveFile(path, content) {
     const response = await fetch("/api/save-file", {
-        method: "POST", // or "PUT" depending on your API
+        method: "POST", 
         headers: {
             "Content-Type": "application/json",
         },

@@ -1,24 +1,37 @@
 import os
 import json
+import subprocess
 import uuid
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, ToolMessage
 from config.preferences import get_value 
 
 # --- PATH SETUP ---
 # Safety: Default to current working directory if PROJECT_DIR is missing
-_proj_dir = get_value("PROJECT_DIR")
-PROJECT_DIR = _proj_dir if _proj_dir else os.getcwd()
 
-AI_DIR = os.path.join(PROJECT_DIR, ".ai") 
-CHAT_DIR = os.path.join(AI_DIR, "chat")
 
 def init_ai_storage():
+    
     """Ensures .ai/chat directories exist."""
+    PROJECT_DIR = get_value("PROJECT_DIR")
+
+    AI_DIR = os.path.join(PROJECT_DIR, ".ai") 
+    CHAT_DIR = os.path.join(AI_DIR, "chat")
     if not os.path.exists(CHAT_DIR):
         try:
             os.makedirs(CHAT_DIR, exist_ok=True)
+            if os.name == "nt":  # Windows only
+                try:
+                    subprocess.run(
+                        ["attrib", "+h", AI_DIR],
+                        shell=True,
+                        check=True
+                    )
+                except Exception as e:
+                    print(f"Failed to hide folder {AI_DIR}: {e}")
         except Exception as e:
             print(f"Error creating chat directory at {CHAT_DIR}: {e}")
+
+
 
 def serialize_message(m, clean_view=False):
     """Converts a message to JSON."""
@@ -50,6 +63,10 @@ def serialize_message(m, clean_view=False):
     return msg_data
 
 def append_to_chat(session_id: str, message, debug=False):
+    PROJECT_DIR = get_value("PROJECT_DIR")
+
+    AI_DIR = os.path.join(PROJECT_DIR, ".ai") 
+    CHAT_DIR = os.path.join(AI_DIR, "chat")
     """Safely appends a message to the JSON list in the log file."""
     
     # Ensure directory exists for this specific session
@@ -114,6 +131,10 @@ def append_to_chat(session_id: str, message, debug=False):
 
 def load_chat(session_id: str, debug=False):
     """Loads messages from a JSON file."""
+    PROJECT_DIR = get_value("PROJECT_DIR")
+
+    AI_DIR = os.path.join(PROJECT_DIR, ".ai") 
+    CHAT_DIR = os.path.join(AI_DIR, "chat")
     dir_path = os.path.join(CHAT_DIR, session_id)
     file_path = os.path.join(dir_path, "debug_log.json" if debug else "log.json")
 
@@ -148,41 +169,42 @@ def load_chat(session_id: str, debug=False):
 # ai/utils/storage.py
 
 def list_sessions():
-    """Returns a list of all session metadata from the filesystem."""
+    
     init_ai_storage()
     sessions = []
-    
-    if not os.path.exists(CHAT_DIR):
-        return []
+    PROJECT_DIR = get_value("PROJECT_DIR")
 
-    # Iterate through every folder in the chat directory
+    AI_DIR = os.path.join(PROJECT_DIR, ".ai") 
+    CHAT_DIR = os.path.join(AI_DIR, "chat")
+    print("CHAT_DIR =", CHAT_DIR)
+    print("RAW DIR LIST =", os.listdir(CHAT_DIR))
+
     for session_id in os.listdir(CHAT_DIR):
         dir_path = os.path.join(CHAT_DIR, session_id)
+        print("Checking:", session_id, "isdir:", os.path.isdir(dir_path))
+
         if not os.path.isdir(dir_path):
             continue
-            
-        log_path = os.path.join(dir_path, "log.json")
-        
-        # Default metadata
-        session_meta = {
-            "id": session_id,
-            "lastMessage": "New Conversation",
-            "timestamp": os.path.getmtime(dir_path) * 1000 # Convert to JS timestamp
-        }
 
-        # Try to get the last message content for the preview
+        log_path = os.path.join(dir_path, "log.json")
+        last_message = "New conversation"
+
         if os.path.exists(log_path):
             try:
-                with open(log_path, "r", encoding='utf-8') as f:
-                    data = json.load(f)
-                    if data and len(data) > 0:
-                        last_msg = data[-1]
-                        session_meta["lastMessage"] = last_msg.get("content", "")[:50]
+                with open(log_path, "r", encoding="utf-8") as f:
+                    messages = json.load(f)
+                    # Find last user or ai message
+                    for msg in reversed(messages):
+                        if msg.get("type") in ("human", "ai"):
+                            last_message = (msg.get("content") or "").strip()
+                            break
             except Exception:
                 pass
-        
-        sessions.append(session_meta)
 
-    # Sort sessions by newest first
-    sessions.sort(key=lambda x: x["timestamp"], reverse=True)
+        sessions.append({
+            "id": session_id,
+            "lastMessage": last_message[:120],  # preview
+            "timestamp": os.path.getmtime(dir_path) * 1000
+        })
+
     return sessions

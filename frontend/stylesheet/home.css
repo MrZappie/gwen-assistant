@@ -207,14 +207,16 @@ body {
     height: 100%;
     overflow: hidden;
 }
-
 .right-panel {
     background-color: #1e1e1e;
     border-left: 1px solid #333;
     display: flex;
     flex-direction: column;
+    /* --- ADD THESE THREE LINES --- */
+    height: 100%; 
+    width: 350px; /* Or whatever your default width is */
+    overflow: hidden; 
 }
-
 /* Dropdown Menu Styles */
 .dropdown-content {
     display: none;
@@ -478,15 +480,15 @@ body {
 
 /* Messages Area */
 .chat-messages {
-    flex-grow: 1;
-    overflow-y: auto;
+    flex: 1; /* Take all available space */
+    overflow-y: auto; /* Enable vertical scroll */
+    min-height: 0; /* Crucial for Firefox/Chrome flex bug */
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
-    /* Messages stack from bottom */
     padding: 15px;
     gap: 8px;
 }
+
 
 /* (Keep your previous Message Bubble & Input CSS here) */
 .message {
@@ -522,6 +524,8 @@ body {
     background: transparent;
     border: none;
     color: white;
+    max-height: 150px;
+    overflow-y: auto;
     resize: none;
     outline: none;
     border-bottom: 1px solid #444;
@@ -578,21 +582,23 @@ body {
 
 /* --- Panel Views --- */
 .panel-view {
-    display: none; /* Hidden by default */
+    display: none; 
     flex-direction: column;
-    height: calc(100% - 45px); /* Subtract header height */
+    /* --- ADD THIS --- */
+    flex: 1; 
+    min-height: 0; /* CRITICAL: Allows flex children to shrink/scroll */
     overflow: hidden;
 }
-
 .panel-view.active {
     display: flex;
 }
 
 /* --- History List Styling --- */
 .history-list {
+    flex: 1;
+    overflow-y: auto; /* Enable vertical scroll */
     padding: 10px;
-    overflow-y: auto;
-    flex-grow: 1;
+    min-height: 0;
 }
 
 .history-card {
@@ -655,6 +661,7 @@ body {
 .chat-input-area {
     padding: 15px;
     background-color: #1e1e1e;
+    flex-shrink: 0;
     border-top: 1px solid #333;
 }
 

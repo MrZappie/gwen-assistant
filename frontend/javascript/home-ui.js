@@ -328,9 +328,7 @@ const tabHistoryBtn = document.getElementById("tab-history-btn");
 const viewChat = document.getElementById("view-chat");
 const viewHistory = document.getElementById("view-history");
 
-// State
-let currentSessionId = null; // If null, we create a new one on send
-const STORAGE_KEY = "gwen_chat_sessions"; // LocalStorage key
+let currentSessionId = null;
 
 // --- 1. Tab Switching ---
 function switchTab(tabName) {
@@ -353,15 +351,106 @@ tabChatBtn.addEventListener("click", () => switchTab('chat'));
 tabHistoryBtn.addEventListener("click", () => switchTab('history'));
 
 // --- 2. Message Rendering ---
-function renderMessage(content, type) {
-    // remove placeholder if exists
+function markdownToHtml(text) {
+    if (!text) return "";
+    let html = escapeHtml(text);
+
+    // Code blocks
+    html = html.replace(/```([\s\S]+?)```/g, (_, code) =>
+        `<pre>${code.trim()}</pre>`
+    );
+
+    // Tables
+    const lines = html.split("\n");
+    let inTable = false;
+    for (let i = 0; i < lines.length; i++) {
+        if (/^\|(.+)\|$/.test(lines[i])) {
+            if (!inTable) {
+                lines[i] =
+                    "<table><thead>" +
+                    renderTableRow(lines[i], true) +
+                    "</thead><tbody>";
+                inTable = true;
+                if (lines[i + 1] && lines[i + 1].includes("|---"))
+                    lines[i + 1] = "";
+            } else {
+                lines[i] = renderTableRow(lines[i], false);
+            }
+        } else if (inTable) {
+            lines[i - 1] += "</tbody></table>";
+            inTable = false;
+        }
+    }
+    html = lines.filter(l => l !== "").join("\n");
+
+    // Headers
+    html = html
+        .replace(/^### (.*$)/gim, "<h3>$1</h3>")
+        .replace(/^## (.*$)/gim, "<h2>$1</h2>")
+        .replace(/^# (.*$)/gim, "<h1>$1</h1>");
+
+    // Lists
+    html = html.replace(/^\s*-\s+(.*)$/gm, "<li>$1</li>");
+    html = html.replace(/(<li>.*<\/li>)/gs, "<ul>$1</ul>");
+    html = html.replace(/<\/ul>\n<ul>/g, "");
+
+    // Bold / Italic / Inline code
+    html = html
+        .replace(/\*\*([^\*]+)\*\*/g, "<b>$1</b>")
+        .replace(/\*([^\*]+)\*/g, "<i>$1</i>")
+        .replace(/`([^`]+)`/g, "<code>$1</code>");
+
+    // Line breaks
+    return html
+        .split("\n")
+        .map(line =>
+            line.match(/<(table|thead|tbody|tr|td|th|ul|ol|li|pre|h\d)/)
+                ? line
+                : line + "<br>"
+        )
+        .join("");
+}
+
+function renderTableRow(row, isHeader) {
+    const cells = row.split("|").filter(c => c.trim() !== "");
+    const tag = isHeader ? "th" : "td";
+    return `<tr>${cells
+        .map(c => `<${tag}>${c.trim()}</${tag}>`)
+        .join("")}</tr>`;
+}
+
+function escapeHtml(str) {
+    return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+
+
+
+function renderMessageFormatted(msg) {
     const placeholder = document.querySelector(".empty-chat-placeholder");
     if (placeholder) placeholder.remove();
 
-    const msgDiv = document.createElement("div");
-    msgDiv.className = `message ${type}`;
-    msgDiv.textContent = content;
-    chatMessages.appendChild(msgDiv);
+    const role =
+        msg.type === "human" || msg.type === "user" ? "user" : "ai";
+
+    const content =
+        msg.content || (msg.kwargs && msg.kwargs.content) || "";
+
+    const div = document.createElement("div");
+    div.className = `message ${role}`;
+
+    const label = document.createElement("div");
+    label.className = "role-label";
+    label.innerText = role === "user" ? "You" : "Agent";
+    div.appendChild(label);
+
+    const contentDiv = document.createElement("div");
+    contentDiv.innerHTML = markdownToHtml(content);
+    div.appendChild(contentDiv);
+
+    chatMessages.appendChild(div);
     scrollToBottom();
 }
 
@@ -371,101 +460,80 @@ function scrollToBottom() {
 
 // --- 3. History Management (Local Storage) ---
 
-function getLocalSessions() {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-}
 
-function saveSessionToLocal(id, firstMessage) {
-    let sessions = getLocalSessions();
-    const now = new Date();
+async function renderHistoryView() {
+    historyList.innerHTML = `<div style="padding:10px;color:#666;">Loading…</div>`;
 
-    // Check if exists
-    const existingIndex = sessions.findIndex(s => s.id === id);
+    try {
+        const res = await fetch("/api/sessions");
+        if (!res.ok) throw new Error("Failed to load sessions");
 
-    if (existingIndex > -1) {
-        // Update existing
-        sessions[existingIndex].lastMessage = firstMessage;
-        sessions[existingIndex].timestamp = now.getTime();
-        // Move to top
-        const item = sessions.splice(existingIndex, 1)[0];
-        sessions.unshift(item);
-    } else {
-        // Create new
-        const newSession = {
-            id: id,
-            preview: firstMessage.substring(0, 30) + (firstMessage.length > 30 ? "..." : ""),
-            lastMessage: firstMessage,
-            timestamp: now.getTime()
-        };
-        sessions.unshift(newSession);
-    }
+        const sessions = await res.json();
+        historyList.innerHTML = "";
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
-}
+        if (!sessions.length) {
+            historyList.innerHTML = `
+              <div style="text-align:center; color:#666; padding:20px;">
+                No history found.
+              </div>`;
+            return;
+        }
 
-function renderHistoryView() {
-    historyList.innerHTML = "";
-    const sessions = getLocalSessions();
+        sessions.forEach(session => {
+            const dateStr = new Date(session.timestamp).toLocaleDateString();
 
-    if (sessions.length === 0) {
-        historyList.innerHTML = `<div style="text-align:center; color:#666; padding:20px;">No history found.</div>`;
-        return;
-    }
+            const card = document.createElement("div");
+            card.className = `history-card ${currentSessionId === session.id ? "active-session" : ""
+                }`;
 
-    sessions.forEach(session => {
-        const dateStr = new Date(session.timestamp).toLocaleDateString();
+            card.innerHTML = `
+              <div class="h-card-header">
+                <span>Chat</span>
+                <span class="h-card-date">${dateStr}</span>
+              </div>
+              <div class="h-card-preview">
+                ${session.lastMessage || "New conversation"}
+              </div>
+            `;
 
-        const card = document.createElement("div");
-        card.className = `history-card ${currentSessionId === session.id ? 'active-session' : ''}`;
-
-        card.innerHTML = `
-         <div class="h-card-header">
-        <span>Chat</span>
-        <div class="h-card-actions">
-            <span class="h-card-date">${dateStr}</span>
-            <i class="bi bi-trash delete-chat-btn"></i>
-        </div>
-    </div>
-    <div class="h-card-preview">${session.lastMessage}</div>
-`;
-        const deleteBtn = card.querySelector(".delete-chat-btn");
-
-        deleteBtn.addEventListener("click", (e) => {
-            e.stopPropagation(); // prevent opening chat
-            deleteSession(session.id);
+            card.addEventListener("click", () => loadSession(session.id));
+            historyList.appendChild(card);
         });
 
-        card.addEventListener("click", () => loadSession(session.id));
-        historyList.appendChild(card);
-    });
+    } catch (err) {
+        console.error(err);
+        historyList.innerHTML = `
+          <div style="color:red; padding:20px;">
+            Failed to load history
+          </div>`;
+    }
 }
 
 // --- 4. API & Interaction ---
 
 async function loadSession(sessionId) {
     currentSessionId = sessionId;
-    switchTab('chat');
-    chatMessages.innerHTML = ""; // Clear current view
+    switchTab("chat");
+    chatMessages.innerHTML = "";
 
-    // Fetch from Backend
     try {
-        const res = await fetch(`/api/chat/${sessionId}`); // Note: You need to ensure your FastAPI router prefix is handled
-        // If your router is just /chat/{id}, remove /api or configure main.py
+        const res = await fetch(`/api/chat/${sessionId}`);
+        if (!res.ok) throw new Error("Failed to load chat");
 
         const messages = await res.json();
 
-        if (Array.isArray(messages)) {
-            messages.forEach(msg => {
-                // Adapt based on how your backend stores 'type' or 'role'
-                // Based on your python: human/ai
-                const type = (msg.type === "human" || msg.type === "user") ? "user" : "system";
-                renderMessage(msg.content, type);
-            });
-        }
+        messages.forEach(msg => {
+            if (msg.type === "tool") return;
+
+            renderMessageFormatted(msg);
+        });
+
     } catch (err) {
-        console.error("Failed to load chat", err);
-        renderMessage("Error loading history.", "system");
+        console.error(err);
+        renderMessageFormatted({
+            type: "ai",
+            content: "Failed to load chat history."
+        });
     }
 }
 
@@ -475,59 +543,61 @@ async function sendMessage() {
 
     chatInput.value = "";
 
-    // 1. DEFAULT BEHAVIOR: If no session is loaded, make a new one
     if (!currentSessionId) {
         currentSessionId = crypto.randomUUID();
-        console.log("Starting new session:", currentSessionId);
+        console.log("New session:", currentSessionId);
     }
 
-    // 2. Render User Message immediately
-    renderMessage(text, "user");
+    renderMessageFormatted({
+        type: "human",
+        content: text
+    });
 
-    // 3. Send to Backend
     try {
         const response = await fetch(`/api/chat/${currentSessionId}`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/x-ndjson"
+            },
             body: JSON.stringify({ message: text })
         });
 
-        if (!response.ok) throw new Error("Failed to reach backend");
+        if (!response.ok) throw new Error("Backend error");
 
-        // 4. Update Local History (Sidebar preview)
-        // We do this after the fetch starts so it only appears if the message "went through"
-        saveSessionToLocal(currentSessionId, text);
-
-        // 5. Handle Streaming Response
         const reader = response.body.getReader();
-        const decoder = new TextDecoder();
+        const decoder = new TextDecoder("utf-8");
+        let buffer = "";
 
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
 
-            const chunk = decoder.decode(value, { stream: true });
-            const lines = chunk.split("\n");
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop();
 
             for (const line of lines) {
                 if (!line.trim()) continue;
                 try {
-                    const data = JSON.parse(line);
-                    if (data.type === "ai" || data.type === "AIMessage") {
-                        renderMessage(data.content, "system");
-                        // Optional: Update preview to show the AI's last words
-                        saveSessionToLocal(currentSessionId, "AI: " + data.content);
+                    const event = JSON.parse(line);
+                    if (event.type !== "tool") {
+                        renderMessageFormatted(event);
                     }
-                } catch (e) {
-                    // Ignore partial JSON chunks during streaming
-                }
+                } catch (_) { }
             }
         }
+        renderHistoryView();
+
     } catch (err) {
-        console.error("Chat Error:", err);
-        renderMessage("Connection error. Message not saved.", "system");
+        console.error(err);
+        renderMessageFormatted({
+            type: "ai",
+            content: "Connection error."
+        });
     }
 }
+
 
 // Event Listeners
 chatSendBtn.addEventListener("click", sendMessage);
@@ -538,31 +608,15 @@ chatInput.addEventListener("keypress", (e) => {
     }
 });
 
-async function deleteSession(sessionId) {
-    if (!confirm("Delete this chat permanently?")) return;
-
-    try {
-        const res = await fetch(`/api/chat/${sessionId}`, {
-            method: "DELETE"
-        });
-
-        if (!res.ok) throw new Error("Delete failed");
-
-        // Remove from localStorage
-        let sessions = getLocalSessions().filter(s => s.id !== sessionId);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
-
-        // Reset UI if deleting active chat
-        if (currentSessionId === sessionId) {
-            currentSessionId = null;
-            chatMessages.innerHTML = "";
-            renderMessage("Chat deleted.", "system");
-        }
-
-        renderHistoryView();
-
-    } catch (err) {
-        console.error("Delete error:", err);
-        alert("Failed to delete chat.");
-    }
+function startNewChat() {
+    currentSessionId = crypto.randomUUID();
+    chatMessages.innerHTML = `
+        <div class="empty-chat-placeholder">
+            <i class="bi bi-chat-square-text"></i>
+            <p>Start a new conversation...</p>
+        </div>
+    `;
+    switchTab("chat");
 }
+
+window.startNewChat = startNewChat;

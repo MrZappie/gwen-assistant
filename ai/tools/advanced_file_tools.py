@@ -18,11 +18,12 @@ def safe_path(user_path: str) -> str:
 def list_dir_recursive(
     path: str = "",
     max_depth: int = 3,
-    max_entries: int = 200
+    max_entries: int = 50
 ) -> str:
     """
     Recursively list files and folders starting at path,
     with depth and entry limits. Use this when you want to list the entire folder structure starting from the given directory.
+    Much more efficient when trying to search for multiple directories
     """
 
     PROJECT_DIR = get_value("PROJECT_DIR")
@@ -111,11 +112,11 @@ def file_metadata(path: str) -> str:
 @tool
 def read_multiple_files(
     paths: list[str],
-    max_total_chars: int = 100_000
+    max_total_chars: int = 8000
 ) -> str:
     """
     Read multiple files and return their contents in a clearly separated format.
-    Use this when you want to analyse multiple file contents together
+    Use this when you want to analyse multiple file contents together.
     """
 
     PROJECT_DIR = get_value("PROJECT_DIR")

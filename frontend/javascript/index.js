@@ -1,17 +1,25 @@
-// index.js
-const selectBtn = document.getElementById('select-project-btn');
+async function onSelectClick(params) {
+    const result = await fetch("http://127.0.0.1:8000/api/selectdir");
+    const data = await result.json();
 
-if (selectBtn) { // Added a check to prevent errors
-    selectBtn.addEventListener('click', () => {
-        const dummyData = {
-            status: "success",
-            folder_name: "My_New_Project",
-            files: ["main.py", "data.csv", "README.md"]
-        };
-
-        localStorage.setItem('selectedProject', JSON.stringify(dummyData));
-
-        // Opens in a new tab
-        window.open('home.html', '_blank'); 
-    });
+    if (data['error'] === true) {
+        
+    }else {
+        window.location.replace("/home.html");
+        console.log("[TEST]");
+        console.log(data);
+    }
 }
+
+document.addEventListener("DOMContentLoaded", async () => {
+    try {
+        const res = await fetch("http://127.0.0.1:8000/api/project-status");
+        const data = await res.json();
+        
+        if (data.project_directory) {
+            window.location.replace("home.html");
+        }
+    } catch (err) {
+        console.error("Backend not reachable", err);
+    }
+});

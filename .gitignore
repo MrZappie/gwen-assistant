@@ -1,3 +1,7 @@
 .venv
 .vscode
 .env
+data.json
+.ai
+chat_test.html
+**/__pycache__/

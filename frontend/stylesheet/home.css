@@ -5,7 +5,8 @@
     box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
     height: 100%;
     background-color: #010409;
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -16,15 +17,15 @@ html, body {
 /* Navigation Bar */
 .top-nav {
     display: flex;
-    background-color: #020024; /* Matches the top dark bar in pic */
+    background-color: #020024;
     padding: 8px 15px;
     gap: 12px;
     border-bottom: 1px solid #161b22;
 }
 
 .nav-btn {
-    background: #3A31D8;
-    color: #8b949e;
+    background: #1f6feb;
+    color: white;
     border: none;
     padding: 6px 16px;
     border-radius: 4px;
@@ -33,32 +34,91 @@ html, body {
     transition: 0.2s;
 }
 
-.nav-btn.active, .nav-btn:hover {
-    background: #1f6feb; /* Blue accent for active tab */
-    color: white;
+.nav-btn:hover {
+    background-color: #58a6ff;
+    color: rgba(255, 255, 255, 0.8);
 }
 
 /* Dashboard Layout */
 .dashboard {
     display: flex;
-    height: calc(100vh - 45px); /* Full height minus nav bar */
+    height: calc(100vh - 45px);
+    /* Adjusted for top-nav height */
     background-color: #0d1117;
+    overflow: hidden;
+    /* Prevent dashboard from scrolling, scroll sidebar/editor instead */
 }
 
-/* Sidebar Styling - Matching the Picture */
+/* Sidebar Styling */
 .sidebar {
-    background-color: #0B0B1D; 
-    width: 280px; /* Slightly wider to match proportions */
+    background-color: #0B0B1D;
+    width: 280px;
     border-right: 1px solid #30363d;
-    padding: 25px 20px; 
+    padding: 25px 20px;
+    height: 100%;
+    /* Fill the dashboard height */
+    overflow-y: auto;
+    /* Enable vertical scrolling */
+    overflow-x: hidden;
+}
+
+.sidebar {
+    background-color: #0B0B1D;
+    width: 280px;
+    min-width: 150px;
+    max-width: 600px;
+    border-right: 1px solid #30363d;
+    padding: 25px 20px;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Custom Scrollbar Styling (Optional - for that "Dark Mode" look) */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: #30363d;
+    border-radius: 10px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: #484f58;
 }
 
 .sidebar h3 {
     color: #ffffff;
-    font-size: 24px; /* Large, bold heading from image */
+    font-size: 24px;
     font-weight: 500;
     margin-bottom: 30px;
     letter-spacing: -0.5px;
+}
+
+.resizer {
+    width: 4px;
+    cursor: col-resize;
+    background-color: #30363d;
+    transition: background-color 0.2s;
+    z-index: 10;
+}
+
+.resizer:hover,
+.resizer:active {
+    background-color: #58a6ff;
+    /* Glow blue when dragging */
+}
+
+/* Ensure the sidebar has a min/max width so it doesn't break the UI */
+.sidebar {
+    min-width: 150px;
+    max-width: 600px;
+    /* ... existing styles ... */
 }
 
 /* Folder Tree Styling */
@@ -67,10 +127,54 @@ html, body {
     font-size: 14px;
 }
 
+/* Base style for the icon */
+.tree-icon::before {
+    font-family: "bootstrap-icons";
+    content: "\F285";
+    display: inline-block;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-right: 4px;
+    font-size: 0.9rem;
+}
+
+/* The state when the folder is open */
+.tree-item.open .tree-icon::before {
+    transform: rotate(90deg);
+    color: #0d6efd;
+}
+
+/* Ensure the list looks like a tree */
+.tree-list {
+    list-style: none;
+    padding-left: 12px;
+    margin: 0;
+}
+
+
+.tree-item i {
+    font-size: 14px;
+    color: #8b949e;
+    width: 16px;
+}
+
+.tree-item:hover i {
+    color: #58a6ff;
+}
+
+.nested {
+    display: none;
+    margin-left: 8px;
+    border-left: 1px solid #333;
+}
+
+.nested.active {
+    display: block;
+}
+
 .tree-item {
     display: flex;
     align-items: center;
-    padding: 6px 0;
+    padding: 2px 0;
     cursor: pointer;
     gap: 8px;
 }
@@ -89,24 +193,34 @@ html, body {
 .nested {
     padding-left: 15px;
     margin-top: 4px;
-    border-left: 1px solid #21262d; /* Subtle guide line */
+    border-left: 1px solid #21262d;
 }
+
 
 /* Right Panel Areas */
 .editor-area {
     flex-grow: 1;
-    background-color: #000000; /* Dark center as seen in pic */
+    display: flex;
+    flex-direction: column;
+    background-color: #1e1e1e;
+    /* Standard editor dark grey */
+    height: 100%;
+    overflow: hidden;
 }
-
 .right-panel {
-    width: 250px;
-    background-color: #040914;
-    border-left: 1px solid #30363d;
+    background-color: #1e1e1e;
+    border-left: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    /* --- ADD THESE THREE LINES --- */
+    height: 100%; 
+    width: 350px; /* Or whatever your default width is */
+    overflow: hidden; 
 }
-
 /* Dropdown Menu Styles */
 .dropdown-content {
     display: none;
+    /* Keep hidden by default */
     position: absolute;
     background-color: #161b22;
     min-width: 180px;
@@ -114,12 +228,21 @@ html, body {
     border-radius: 6px;
     margin-top: 8px;
     z-index: 1000;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    user-select: none;
+    padding: 0;
+    /* Add this to remove default list padding */
+}
+
+/* Only this class makes it visible */
+.dropdown-content.show {
+    display: block;
 }
 
 .dropdown-content li {
     padding: 10px 15px;
     font-size: 13px;
+    list-style-type: none;
     color: #c9d1d9;
 }
 
@@ -128,4 +251,441 @@ html, body {
     color: white;
 }
 
-.show { display: block; }
+#editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 15px;
+    background-color: #252526;
+    border-bottom: 1px solid #333;
+    color: #cccccc;
+    font-size: 13px;
+    font-family: 'Segoe UI', sans-serif;
+    min-height: 35px;
+}
+
+#file-content-display {
+    margin: 0;
+    padding: 20px;
+    overflow: auto;
+    flex-grow: 1;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    /* Maintains formatting but wraps long lines */
+}
+
+/* Optional highlight for the selected file in sidebar */
+.selected-file {
+    background-color: #21262d !important;
+    color: #58a6ff !important;
+    border-radius: 4px;
+}
+
+.editor-area {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+#file-editor {
+    flex-grow: 1;
+    width: 100%;
+    border: none;
+    outline: none;
+    padding: 20px;
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+    resize: none;
+    /* Disables the bottom-right drag handle */
+    line-height: 1.6;
+    tab-size: 4;
+    /* Standard code indentation */
+    white-space: pre;
+    /* Keeps code formatting exactly as fetched */
+    overflow: auto;
+}
+
+#tabs-container {
+    display: flex;
+    /* Aligns children (tabs) in a row */
+    flex-direction: row;
+    /* Ensures horizontal flow */
+    background-color: #0d1117;
+    /* Match your background */
+    border-bottom: 1px solid #30363d;
+    overflow-x: auto;
+    /* Allows scrolling if many tabs are open */
+    overflow-y: hidden;
+    height: 35px;
+    /* Fixed height for the tab bar */
+}
+
+.tab {
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    height: 100%;
+    background-color: #0b0b1d;
+    border-right: 1px solid #30363d;
+    cursor: pointer;
+    font-size: 13px;
+    color: #c9d1d9;
+    white-space: nowrap;
+    /* Prevents text from wrapping within the tab */
+    min-width: fit-content;
+    /* Adjusts tab width to the file name */
+}
+
+.tab.active {
+    background-color: #1e1e1e;
+    /* Highlight for active file */
+    color: #ffffff;
+}
+
+.tab i {
+    margin-left: 8px;
+    /* Space for the 'x' button */
+    font-size: 14px;
+}
+
+#file-editor::-webkit-scrollbar {
+    width: 8px;
+    /* Slightly wider for ease of use in the editor */
+    height: 8px;
+    /* For horizontal scroll if code is wide */
+}
+
+#file-editor::-webkit-scrollbar-track {
+    background: #1e1e1e;
+    /* Matches editor background */
+}
+
+#file-editor::-webkit-scrollbar-thumb {
+    background: #30363d;
+    /* Same color as sidebar */
+    border-radius: 10px;
+}
+
+#file-editor::-webkit-scrollbar-thumb:hover {
+    background: #484f58;
+    /* Same hover color as sidebar */
+}
+
+/* Targets the horizontal tab container scrollbar */
+#tabs-container::-webkit-scrollbar {
+    height: 4px;
+    /* Thin scrollbar for the tab row */
+}
+
+#tabs-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#tabs-container::-webkit-scrollbar-thumb {
+    background: #30363d;
+    border-radius: 10px;
+}
+
+#tabs-container::-webkit-scrollbar-thumb:hover {
+    background: #484f58;
+}
+
+/* Container for the "Select a File" screen */
+/* --- Empty State Container --- */
+.empty-state {
+    display: none;
+    /* Toggled by JS */
+    flex-grow: 1;
+    height: 100%;
+    background-color: #1e1e1e;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+
+    /* PREVENTS UGLY BLUE TEXT SELECTION */
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Background Logo */
+.bg-icon {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    color: #252526;
+    opacity: 0.5;
+    transform: rotate(-10deg);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.bg-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* The "Select a File" Text */
+.empty-message {
+    z-index: 10;
+    color: #3b3b3b;
+    /* Subtle dark grey like VS Code */
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: -0.5px;
+    text-transform: lowercase;
+    font-variant: small-caps;
+}
+
+.chat-header-minimal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    border-bottom: 1px solid #2a2a2a;
+    background-color: #252526;
+    height: 40px;
+}
+
+
+
+/* New Chat Button (+) */
+.icon-btn {
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-btn:hover {
+    background-color: #333;
+    color: white;
+}
+
+/* --- Chat Container (Below Header) --- */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 40px);
+    /* Subtract header height */
+}
+
+/* Messages Area */
+.chat-messages {
+    flex: 1; /* Take all available space */
+    overflow-y: auto; /* Enable vertical scroll */
+    min-height: 0; /* Crucial for Firefox/Chrome flex bug */
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    gap: 8px;
+}
+
+
+/* (Keep your previous Message Bubble & Input CSS here) */
+.message {
+    padding: 6px 10px;
+    border-radius: 6px;
+    max-width: 100%;
+    word-wrap: break-word;
+    font-size: 0.9rem;
+    color: #ddd;
+}
+
+.message.user {
+    align-self: flex-end;
+    background-color: #0e639c;
+}
+
+.message.system {
+    align-self: flex-start;
+    color: #888;
+    font-style: italic;
+}
+
+.chat-input-area {
+    padding: 10px;
+    border-top: 1px solid #333;
+    display: flex;
+    gap: 10px;
+    background-color: #1e1e1e;
+}
+
+#chat-input {
+    flex-grow: 1;
+    background: transparent;
+    border: none;
+    color: white;
+    max-height: 150px;
+    overflow-y: auto;
+    resize: none;
+    outline: none;
+    border-bottom: 1px solid #444;
+}
+
+.send-btn {
+    background: none;
+    border: none;
+    color: #0e639c;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
+
+/* --- Right Panel Tabs --- */
+.chat-tabs-header {
+    display: flex;
+    background-color: #252526;
+    border-bottom: 1px solid #333;
+    height: 45px;
+}
+
+.chat-tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #8b949e;
+    cursor: pointer;
+    font-size: 1.1rem;
+    position: relative;
+    transition: all 0.2s;
+}
+
+.chat-tab-btn:hover {
+    background-color: #2d2d2d;
+    color: #e6e6e6;
+}
+
+.chat-tab-btn.active {
+    color: #58a6ff; /* Blue accent */
+    background-color: #1e1e1e; /* Match panel bg */
+}
+
+/* Active tab indicator line */
+.chat-tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #58a6ff;
+}
+
+/* --- Panel Views --- */
+.panel-view {
+    display: none; 
+    flex-direction: column;
+    /* --- ADD THIS --- */
+    flex: 1; 
+    min-height: 0; /* CRITICAL: Allows flex children to shrink/scroll */
+    overflow: hidden;
+}
+.panel-view.active {
+    display: flex;
+}
+
+/* --- History List Styling --- */
+.history-list {
+    flex: 1;
+    overflow-y: auto; /* Enable vertical scroll */
+    padding: 10px;
+    min-height: 0;
+}
+
+.history-card {
+    background-color: #252526;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: transform 0.1s, border-color 0.2s;
+}
+
+.history-card:hover {
+    border-color: #58a6ff;
+    background-color: #2d2d2d;
+}
+
+.history-card.active-session {
+    border-left: 3px solid #58a6ff;
+    background-color: #2a2d33;
+}
+
+.h-card-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #e6e6e6;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.h-card-date {
+    font-size: 0.75rem;
+    color: #8b949e;
+}
+
+.h-card-preview {
+    font-size: 0.8rem;
+    color: #8b949e;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --- Chat Adjustments --- */
+.empty-chat-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #444;
+}
+
+.empty-chat-placeholder i {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+.chat-input-area {
+    padding: 15px;
+    background-color: #1e1e1e;
+    flex-shrink: 0;
+    border-top: 1px solid #333;
+}
+
+#chat-send-btn {
+    color: #58a6ff;
+    font-size: 1.5rem;
+    padding: 0 5px;
+}
+
+#chat-send-btn:hover {
+    color: #79c0ff;
+}
+
+.delete-chat-btn {
+    cursor: pointer;
+    color: #999;
+    margin-left: 8px;
+}
+
+.delete-chat-btn:hover {
+    color: #e74c3c;
+}
+
+
+.show {
+    display: block;
+}

@@ -1,15 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
 :root {
     --background-color: #010104;
     --text-color: #EBE9FC;
     --accent-blue: #3A31D8;
 }
 
-
+* {
+    margin: 0;
+    padding: 0;
+}
 
 body {
     background-color: var(--background-color);
     color: var(--text-color);
     display: flex;
+    font-family: 'Roboto', 'Crimson Pro' ,serif;
     flex-direction: column;
     align-items: center;
     justify-content: center;

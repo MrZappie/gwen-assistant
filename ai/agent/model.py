@@ -1,19 +1,24 @@
 from langchain_groq import ChatGroq
-from config.settings import API_KEY ,MODE
-from tools.file_tools import TOOLS
+from ai.tools.tool_registry import TOOLS
 from langchain_ollama import ChatOllama
+from config.preferences import get_value
+import os
 
-
-groq_model = ChatGroq(
-        model="qwen/qwen3-32b",
-        temperature=0,
-        api_key=API_KEY,
-    ).bind_tools(TOOLS)
-
-ollama_model = ChatOllama(
-    model = "qwen2.5:14b",
-    temperature=0
-).bind_tools(TOOLS)
-
-def get_model():
-    return ollama_model if MODE == "LOCAL" else groq_model
+def get_model(bind = False):
+    MODE = get_value("MODE")
+    if MODE == "LOCAL":
+        model =  ChatOllama(
+            model = "qwen2.5:14b",
+            temperature=0
+        )
+    else:
+        model = ChatGroq(
+            model="openai/gpt-oss-120b",
+            temperature=0,
+            api_key=os.environ.get("GROQ_API_KEY"),
+        )
+    
+    if bind:
+        return model.bind_tools(TOOLS)
+    else:
+        return model
